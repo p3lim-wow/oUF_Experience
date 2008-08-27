@@ -1,0 +1,8 @@
+## Interface: 20400
+## Author: p3lim
+## Version: Revision wowi:revision
+## Title: oUF Experience
+## Notes: Experience Bar support for oUF layouts.
+## RequiredDeps: oUF
+
+oUF_Experience.lua
