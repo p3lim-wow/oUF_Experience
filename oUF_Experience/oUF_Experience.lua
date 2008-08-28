@@ -1,15 +1,16 @@
 local function CreateTooltip(self)
 	local min, max = UnitXP('player'), UnitXPMax('player')
 
-	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
+	GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
 	if(GetXPExhaustion()) then
-		GameTooltip:AddLine(format('Rested XP left: %s', GetXPExhaustion()))
+		GameTooltip:AddLine(format('|cffffffffRested XP remaining:|r %s', GetXPExhaustion()))
 		GameTooltip:AddLine(' ')
 	end
-	GameTooltip:AddLine(format('Percentage through: %s%%', floor(min / max * 100)))
-	GameTooltip:AddLine(format('Percentage left: %s%%', floor((max - min) / max * 100)))
-	GameTooltip:AddLine(format('Bars through: %s', floor(min / max * 20)))
-	GameTooltip:AddLine(format('Bars left: %s', floor((max - min) / max * 20)))
+	GameTooltip:AddLine(format('|cffffffffRemaining XP to go:|r %s', floor(max - min)))
+	GameTooltip:AddLine(format('|cffffffffPercentage through:|r %s%%', floor(min / max * 100)))
+	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - min) / max * 100)))
+	GameTooltip:AddLine(format('|cffffffffBars through:|r %s', floor(min / max * 20)))
+	GameTooltip:AddLine(format('|cffffffffBars to go:|r %s', floor((max - min) / max * 20)))
 	GameTooltip:Show()
 end
 
