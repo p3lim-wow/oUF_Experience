@@ -1,3 +1,18 @@
+local function CreateTooltip(self)
+	local min, max = UnitXP('player'), UnitXPMax('player')
+
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
+	if(GetXPExhaustion()) then
+		GameTooltip:AddLine(format('Rested XP left: %s', GetXPExhaustion()))
+		GameTooltip:AddLine(' ')
+	end
+	GameTooltip:AddLine(format('Percentage through: %s%%', floor(min / max * 100)))
+	GameTooltip:AddLine(format('Percentage left: %s%%', floor((max - min) / max * 100)))
+	GameTooltip:AddLine(format('Bars through: %s', floor(min / max * 20)))
+	GameTooltip:AddLine(format('Bars left: %s', floor((max - min) / max * 20)))
+	GameTooltip:Show()
+end
+
 local function UpdateElement(self, bar)
 	local min, max = UnitXP('player'), UnitXPMax('player')
 	bar:SetMinMaxValues(0, max)
@@ -13,6 +28,12 @@ local function UpdateElement(self, bar)
 
 	if(bar.text) then
 		bar.text:SetFormattedText('%s / %s', min, max)
+	end
+
+	if(bar.tooltip) then
+		bar:EnableMouse()
+		bar:SetScript('OnEnter', CreateTooltip)
+		bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 	end
 end
 
