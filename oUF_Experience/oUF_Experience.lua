@@ -23,7 +23,7 @@ local function UpdateElement(self, bar)
 	if(bar.rested) then
 		local rested = GetXPExhaustion() or 0
 		bar.rested:SetMinMaxValues(0, max)
-		bar.rested:SetValue(rested)
+		bar.rested:SetValue(rested + min)
 		bar.rested:SetFrameLevel(2)
 	end
 
