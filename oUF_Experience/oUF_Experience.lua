@@ -19,13 +19,13 @@ local function UpdateElement(self, event, unit, bar)
 		local min, max = UnitXP('player'), UnitXPMax('player')
 		bar:SetMinMaxValues(0, max)
 		bar:SetValue(min)
-		bar:SetFrameLevel(3)
 
 		if(bar.rested) then
 			local rested = GetXPExhaustion() or 0
 			bar.rested:SetMinMaxValues(0, max)
 			bar.rested:SetValue(rested + min)
 			bar.rested:SetFrameLevel(2)
+			bar:SetFrameLevel(3)
 		end
 
 		if(bar.text) then
@@ -38,7 +38,7 @@ local function UpdateElement(self, event, unit, bar)
 			bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 		end
 
-		if(self.PostUpdateExperience) then self:PostUpdateExperience(self, event, unit, bar, min, max) end
+		if(self.PostUpdateExperience) then self:PostUpdateExperience(event, unit, bar, min, max) end
 	end
 end
 
