@@ -1,3 +1,14 @@
+--[[
+	Elements handled:
+		.Experience
+		.Experience.Text
+
+	Shared:
+	 - colorReputation [boolean]
+	 - colorExperience [table] - will use health color if not set
+	 - Tooltip [boolean]
+
+--]]
 local _, class = UnitClass('player')
 
 local function PlayerXPTip(self, min, max)
@@ -14,12 +25,12 @@ local function PlayerXPTip(self, min, max)
 	GameTooltip:Show()
 end
 
-local function PlayerRepTip(self, name, standing, min, max, value)
+local function PlayerRepTip(self, name, id, min, max, value)
 	GameTooltip:SetOwner(self, 'ANCHOR_CURSOR')
 	GameTooltip:AddLine(format('|cffffffffWatched Faction:|r %s', name))
 	GameTooltip:AddLine(format('|cffffffffRemaining Reputation to go:|r %s', floor(max - value)))
 	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - value) / (max-min) * 100)))
-	GameTooltip:AddLine(format('|cffffffffCurrent Standing:|r %s', _G['FACTION_STANDING_LABEL' .. standing]))
+	GameTooltip:AddLine(format('|cffffffffCurrent Standing:|r %s', _G['FACTION_STANDING_LABEL'..id]))
 	GameTooltip:Show()
 end
 
@@ -37,23 +48,26 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 	if(self.unit == 'player') then
 		local bar = self.Experience
 		if(GetWatchedFactionInfo()) then
-			local name, standing, min, max, value = GetWatchedFactionInfo()
+			local name, id, min, max, value = GetWatchedFactionInfo()
 			bar:SetMinMaxValues(min, max)
 			bar:SetValue(value)
+			if(self.colorReputation) then bar:SetStatusBarColor(FACTION_BAR_COLORS[id].r, FACTION_BAR_COLORS[id].g, FACTION_BAR_COLORS[id].b) end
+			bar:Show()
 
 			if(bar.Text) then
-				bar.Text:SetFormattedText('%d / %d - %s', value, max, name)
+				bar.Text:SetFormattedText('%d / %d - %s', value - min, max - min, name)
 			end
 
 			if(bar.Tooltip) then
 				bar:EnableMouse()
-				bar:SetScript('OnEnter', function() PlayerRepTip(bar, name, standing, min, max, value) end)
+				bar:SetScript('OnEnter', function() PlayerRepTip(bar, name, id, min, max, value) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			end
 		elseif(UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
 			local min, max = UnitXP('player'), UnitXPMax('player')
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
+			bar:SetStatusBarColor(unpack(self.colorExperience or self.colors.health))
 			bar:Show()
 
 			if(bar.Text) then
@@ -74,19 +88,23 @@ end
 function oUF:UNIT_PET_EXPERIENCE(event, unit)
 	if(self.unit == 'pet') then
 		local bar = self.Experience
-		local min, max = GetPetExperience()
-		bar:SetMinMaxValues(0, max)
-		bar:SetValue(min)
-		bar:Show()
+		if(UnitLevel('pet') ~= MAX_PLAYER_LEVEL and class == 'HUNTER') then
+			local min, max = GetPetExperience()
+			bar:SetMinMaxValues(0, max)
+			bar:SetValue(min)
+			bar:Show()
 
-		if(bar.Text) then
-			bar.Text:SetFormattedText('%d / %d', min, max)
-		end
+			if(bar.Text) then
+				bar.Text:SetFormattedText('%d / %d', min, max)
+			end
 
-		if(bar.Tooltip) then
-			bar:EnableMouse()
-			bar:SetScript('OnEnter', function() PetTip(bar, min, max) end)
-			bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
+			if(bar.Tooltip) then
+				bar:EnableMouse()
+				bar:SetScript('OnEnter', function() PetTip(bar, min, max) end)
+				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
+			end
+		else
+			bar:Hide()
 		end
 	end
 end
@@ -95,14 +113,9 @@ oUF:RegisterInitCallback(function(self)
 	local experience = self.Experience
 	if(experience) then
 		self:RegisterEvent('PLAYER_XP_UPDATE')
+		self:RegisterEvent('UNIT_PET_EXPERIENCE')
 		self:RegisterEvent('UPDATE_FACTION')
 		self.UPDATE_FACTION = self.PLAYER_XP_UPDATE
-
-		if(UnitLevel('pet') ~= MAX_PLAYER_LEVEL and class == 'HUNTER') then
-			self:RegisterEvent('UNIT_PET_EXPERIENCE')
-		else
-			experience:Hide()
-		end
 
 		if(UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
 			self:RegisterEvent('UPDATE_EXHAUSTION')
