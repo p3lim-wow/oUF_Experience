@@ -50,7 +50,7 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 				bar:SetScript('OnEnter', function() PlayerRepTip(bar, name, standing, min, max, value) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			end
-		else
+		elseif(UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
 			local min, max = UnitXP('player'), UnitXPMax('player')
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
@@ -65,6 +65,8 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 				bar:SetScript('OnEnter', function() PlayerXPTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			end
+		else
+			bar:Hide()
 		end
 	end
 end
@@ -92,6 +94,10 @@ end
 oUF:RegisterInitCallback(function(self)
 	local experience = self.Experience
 	if(experience) then
+		self:RegisterEvent('PLAYER_XP_UPDATE')
+		self:RegisterEvent('UPDATE_FACTION')
+		self.UPDATE_FACTION = self.PLAYER_XP_UPDATE
+
 		if(UnitLevel('pet') ~= MAX_PLAYER_LEVEL and class == 'HUNTER') then
 			self:RegisterEvent('UNIT_PET_EXPERIENCE')
 		else
@@ -99,17 +105,10 @@ oUF:RegisterInitCallback(function(self)
 		end
 
 		if(UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
-			self:RegisterEvent('PLAYER_XP_UPDATE')
-
-			-- hook more events
-			self:RegisterEvent('UPDATE_FACTION')
 			self:RegisterEvent('UPDATE_EXHAUSTION')
 			self:RegisterEvent('PLAYER_LEVEL_UP')
-			self.UPDATE_FACTION = self.PLAYER_XP_UPDATE
 			self.UPDATE_EXAUSTION = self.PLAYER_XP_UPDATE
 			self.PLAYER_LEVEL_UP = self.PLAYER_XP_UPDATE
-		else
-			experience:Hide()
 		end
 
 		if(not experience:GetStatusBarTexture()) then
