@@ -1,11 +1,12 @@
 --[[
+
 	Elements handled:
-		.Experience
-		.Experience.Text
+	 .Experience [statusbar]
+	 .Experience.Text [fontstring]
 
 	Shared:
-	 - colorReputation [boolean]
-	 - colorExperience [table] - will use health color if not set
+	 - colorReputation [table] - will use blizzard colors if not set
+	 - colorExperience [table] - will use a green color if not set
 	 - Tooltip [boolean]
 
 --]]
@@ -51,7 +52,7 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 			local name, id, min, max, value = GetWatchedFactionInfo()
 			bar:SetMinMaxValues(min, max)
 			bar:SetValue(value)
-			if(self.colorReputation) then bar:SetStatusBarColor(FACTION_BAR_COLORS[id].r, FACTION_BAR_COLORS[id].g, FACTION_BAR_COLORS[id].b) end
+			bar:SetStatusBarColor(unpack(self.colorReputation or { FACTION_BAR_COLORS[id].r, FACTION_BAR_COLORS[id].g, FACTION_BAR_COLORS[id].b}))
 			bar:Show()
 
 			if(bar.Text) then
@@ -88,10 +89,11 @@ end
 function oUF:UNIT_PET_EXPERIENCE(event, unit)
 	if(self.unit == 'pet') then
 		local bar = self.Experience
-		if(UnitLevel('pet') ~= MAX_PLAYER_LEVEL and class == 'HUNTER') then
+		if(UnitLevel('pet') ~= UnitLevel('player') and class == 'HUNTER') then
 			local min, max = GetPetExperience()
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
+			bar:SetStatusBarColor(unpack(self.colorExperience or self.colors.health))
 			bar:Show()
 
 			if(bar.Text) then
@@ -117,13 +119,6 @@ oUF:RegisterInitCallback(function(self)
 		self:RegisterEvent('UPDATE_FACTION')
 		self.UPDATE_FACTION = self.PLAYER_XP_UPDATE
 
-		if(UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
-			self:RegisterEvent('UPDATE_EXHAUSTION')
-			self:RegisterEvent('PLAYER_LEVEL_UP')
-			self.UPDATE_EXAUSTION = self.PLAYER_XP_UPDATE
-			self.PLAYER_LEVEL_UP = self.PLAYER_XP_UPDATE
-		end
-
 		if(not experience:GetStatusBarTexture()) then
 			experience:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
@@ -132,3 +127,4 @@ end)
 
 oUF:RegisterSubTypeMapping('PLAYER_XP_UPDATE')
 oUF:RegisterSubTypeMapping('UNIT_PET_EXPERIENCE')
+oUF:RegisterSubTypeMapping('UPDATE_FACTION')
