@@ -142,12 +142,19 @@ function oUF:UNIT_PET_EXPERIENCE(event, unit)
 	end
 end
 
+function oUF:UNIT_PET(event, unit)
+	if(unit == 'pet') then
+		self.UNIT_PET_EXPERIENCE(self, event, unit)
+	end
+end
+
 oUF:RegisterInitCallback(function(self)
 	local experience = self.Experience
 	if(experience) then
 		self:RegisterEvent('PLAYER_XP_UPDATE')
 		self:RegisterEvent('UNIT_PET_EXPERIENCE')
 		self:RegisterEvent('UPDATE_FACTION')
+		self:RegisterEvent('UNIT_PET')
 		self.UPDATE_FACTION = self.PLAYER_XP_UPDATE
 
 		if(not experience:GetStatusBarTexture()) then
