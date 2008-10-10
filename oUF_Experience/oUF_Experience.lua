@@ -68,7 +68,7 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 			elseif(bar.Tooltip and not bar.MouseOver) then
 				bar:EnableMouse()
-				bar:SetScript('OnEnter', function() PlayerXPTip(bar, name, id, min, max, value) end)
+				bar:SetScript('OnEnter', function() PlayerRepTip(bar, name, id, min, max, value) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			elseif(bar.MouseOver and not bar.Tooltip) then
 				bar:EnableMouse()
@@ -125,11 +125,11 @@ function oUF:UNIT_PET_EXPERIENCE(event, unit)
 
 			if(bar.Tooltip and bar.MouseOver) then
 				bar:EnableMouse()
-				bar:SetScript('OnEnter', function() bar:SetAlpha(1); PlayerXPTip(bar, min, max) end)
+				bar:SetScript('OnEnter', function() bar:SetAlpha(1); PetTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 			elseif(bar.Tooltip and not bar.MouseOver) then
 				bar:EnableMouse()
-				bar:SetScript('OnEnter', function() PlayerXPTip(bar, min, max) end)
+				bar:SetScript('OnEnter', function() PetTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			elseif(bar.MouseOver and not bar.Tooltip) then
 				bar:EnableMouse()
