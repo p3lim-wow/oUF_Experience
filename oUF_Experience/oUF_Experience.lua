@@ -143,7 +143,7 @@ function oUF:UNIT_PET_EXPERIENCE(event, unit)
 end
 
 function oUF:UNIT_PET(event, unit)
-	if(unit == 'pet') then
+	if(unit == 'player') then
 		self.UNIT_PET_EXPERIENCE(self, event, unit)
 	end
 end
