@@ -1,6 +1,6 @@
-## Interface: 20400
+## Interface: 30000
 ## Author: p3lim
-## Version: 20400.wowi:revision
+## Version: 30000.wowi:revision
 ## Title: oUF Experience
 ## Notes: Experience/Reputation Bar support for oUF layouts.
 ## RequiredDeps: oUF

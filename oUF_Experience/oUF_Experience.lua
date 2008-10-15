@@ -14,7 +14,7 @@
 local _, class = UnitClass('player')
 
 local function PlayerXPTip(self, min, max)
-	GameTooltip:SetOwner(self, 'TOPLEFT', 5, -5)
+	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
 	if(GetXPExhaustion()) then
 		GameTooltip:AddLine(format('|cffffffffRested XP remaining:|r %s', GetXPExhaustion()))
 		GameTooltip:AddLine(' ')
@@ -28,7 +28,7 @@ local function PlayerXPTip(self, min, max)
 end
 
 local function PlayerRepTip(self, name, id, min, max, value)
-	GameTooltip:SetOwner(self, 'TOPLEFT', 5, -5)
+	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
 	GameTooltip:AddLine(format('|cffffffffWatched Faction:|r %s', name))
 	GameTooltip:AddLine(format('|cffffffffRemaining Reputation to go:|r %s', floor(max - value)))
 	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - value) / (max-min) * 100)))
@@ -37,7 +37,7 @@ local function PlayerRepTip(self, name, id, min, max, value)
 end
 
 local function PetTip(self, min, max)
-	GameTooltip:SetOwner(self, 'TOPLEFT', 5, -5)
+	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
 	GameTooltip:AddLine(format('|cffffffffRemaining XP to go:|r %s', floor(max - min)))
 	GameTooltip:AddLine(format('|cffffffffPercentage through:|r %s%%', floor(min / max * 100)))
 	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - min) / max * 100)))
