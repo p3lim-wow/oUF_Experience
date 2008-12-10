@@ -11,49 +11,45 @@
 	 - MouseOver [boolean]
 
 --]]
-local _, class = UnitClass('player')
+local localized, english = UnitClass('player')
+local _format = string.format
 
 local function PlayerXPTip(self, min, max)
+	local rested = GetXPExhaustion()
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
-	if(GetXPExhaustion()) then
-		GameTooltip:AddLine(format('|cffffffffRested XP remaining:|r %s', GetXPExhaustion()))
-		GameTooltip:AddLine(' ')
+	GameTooltip:AddLine(_format('XP: %d/%d (%.1f%%)', min, max, min/max*100))
+	GameTooltip:AddLine(_format('%d needed (%.1f%% - %.1f bars)', max-min, (max-min)/max*100,(max-min)/max*20))
+	if(rested) then
+		GameTooltip:AddLine(_format('|cff0090ffRested: +%d (%.1f%%)', rested, rested/max*100))
 	end
-	GameTooltip:AddLine(format('|cffffffffRemaining XP to go:|r %s', floor(max - min)))
-	GameTooltip:AddLine(format('|cffffffffPercentage through:|r %s%%', floor(min / max * 100)))
-	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - min) / max * 100)))
-	GameTooltip:AddLine(format('|cffffffffBars through:|r %s', floor(min / max * 20)))
-	GameTooltip:AddLine(format('|cffffffffBars to go:|r %s', floor((max - min) / max * 20)))
 	GameTooltip:Show()
 end
 
-local function PlayerRepTip(self, name, id, min, max, value)
+local function PlayerRepTip(self, name, id, min, max)
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
-	GameTooltip:AddLine(format('|cffffffffWatched Faction:|r %s', name))
-	GameTooltip:AddLine(format('|cffffffffRemaining Reputation to go:|r %s', floor(max - value)))
-	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - value) / (max-min) * 100)))
-	GameTooltip:AddLine(format('|cffffffffCurrent Standing:|r %s', _G['FACTION_STANDING_LABEL'..id]))
+	GameTooltip:AddLine(_format('%s (%s)', name, _G['FACTION_STANDING_LABEL'..id]))
+	GameTooltip:AddLine(_format('%d/%d (%.1f%%)', min, max, min/max*100))
 	GameTooltip:Show()
 end
 
 local function PetTip(self, min, max)
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
-	GameTooltip:AddLine(format('|cffffffffRemaining XP to go:|r %s', floor(max - min)))
-	GameTooltip:AddLine(format('|cffffffffPercentage through:|r %s%%', floor(min / max * 100)))
-	GameTooltip:AddLine(format('|cffffffffPercentage to go:|r %s%%', floor((max - min) / max * 100)))
-	GameTooltip:AddLine(format('|cffffffffBars through:|r %s', floor(min / max * 20)))
-	GameTooltip:AddLine(format('|cffffffffBars to go:|r %s', floor((max - min) / max * 20)))
+	GameTooltip:AddLine(_format('XP: %d/%d (%.1f%%)', min, max, min/max*100))
+	GameTooltip:AddLine(_format('%d needed (%.1f%% - %.1f bars)', max-min, (max-min)/max*100,(max-min)/max*20))
 	GameTooltip:Show()
 end
 
 function oUF:PLAYER_XP_UPDATE(event, unit)
 	if(self.unit == 'player') then
 		local bar = self.Experience
+		
 		if(GetWatchedFactionInfo()) then
 			local name, id, min, max, value = GetWatchedFactionInfo()
 			bar:SetMinMaxValues(min, max)
 			bar:SetValue(value)
-			bar:SetStatusBarColor(unpack(self.colorReputation or { FACTION_BAR_COLORS[id].r, FACTION_BAR_COLORS[id].g, FACTION_BAR_COLORS[id].b}))
+			bar:EnableMouse()
+			bar:SetStatusBarColor(unpack(self.colorReputation or {FACTION_BAR_COLORS[id].r, FACTION_BAR_COLORS[id].g, FACTION_BAR_COLORS[id].b}))
+
 			if(not bar.MouseOver) then
 				bar:SetAlpha(1)
 			end
@@ -63,15 +59,12 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 			end
 
 			if(bar.Tooltip and bar.MouseOver) then
-				bar:EnableMouse()
-				bar:SetScript('OnEnter', function() bar:SetAlpha(1); PlayerRepTip(bar, name, id, min, max, value) end)
+				bar:SetScript('OnEnter', function() bar:SetAlpha(1); PlayerRepTip(bar, name, id, value - min, max - min) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 			elseif(bar.Tooltip and not bar.MouseOver) then
-				bar:EnableMouse()
-				bar:SetScript('OnEnter', function() PlayerRepTip(bar, name, id, min, max, value) end)
+				bar:SetScript('OnEnter', function() PlayerRepTip(bar, name, id, value - min, max - min) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			elseif(bar.MouseOver and not bar.Tooltip) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0) end)
 			end
@@ -79,7 +72,9 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 			local min, max = UnitXP('player'), UnitXPMax('player')
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
+			bar:EnableMouse()
 			bar:SetStatusBarColor(unpack(self.colorExperience or self.colors.health))
+
 			if(not bar.MouseOver) then
 				bar:SetAlpha(1)
 			end
@@ -89,15 +84,12 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 			end
 
 			if(bar.Tooltip and bar.MouseOver) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() bar:SetAlpha(1); PlayerXPTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 			elseif(bar.Tooltip and not bar.MouseOver) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() PlayerXPTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			elseif(bar.MouseOver and not bar.Tooltip) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0) end)
 			end
@@ -110,11 +102,13 @@ end
 function oUF:UNIT_PET_EXPERIENCE(event, unit)
 	if(self.unit == 'pet') then
 		local bar = self.Experience
-		if(UnitLevel('pet') ~= UnitLevel('player') and class == 'HUNTER') then
+		if(UnitLevel('pet') ~= UnitLevel('player') and english == 'HUNTER') then
 			local min, max = GetPetExperience()
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
+			bar:EnableMouse()
 			bar:SetStatusBarColor(unpack(self.colorExperience or self.colors.health))
+
 			if(not bar.MouseOver) then
 				bar:SetAlpha(1)
 			end
@@ -124,15 +118,12 @@ function oUF:UNIT_PET_EXPERIENCE(event, unit)
 			end
 
 			if(bar.Tooltip and bar.MouseOver) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() bar:SetAlpha(1); PetTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 			elseif(bar.Tooltip and not bar.MouseOver) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() PetTip(bar, min, max) end)
 				bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 			elseif(bar.MouseOver and not bar.Tooltip) then
-				bar:EnableMouse()
 				bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0) end)
 			end
