@@ -9,6 +9,8 @@
 	 - colorExperience [table] - will use a green color if not set
 	 - Tooltip [boolean]
 	 - MouseOver [boolean]
+	 - XPOnly [boolean]
+	 - RepOnly [boolean]
 
 --]]
 local localized, english = UnitClass('player')
@@ -43,7 +45,7 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 	if(self.unit == 'player') then
 		local bar = self.Experience
 		
-		if(GetWatchedFactionInfo()) then
+		if(GetWatchedFactionInfo() and not self.Experience.XPOnly) then
 			local name, id, min, max, value = GetWatchedFactionInfo()
 			bar:SetMinMaxValues(min, max)
 			bar:SetValue(value)
@@ -68,7 +70,7 @@ function oUF:PLAYER_XP_UPDATE(event, unit)
 				bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
 				bar:SetScript('OnLeave', function() bar:SetAlpha(0) end)
 			end
-		elseif(UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
+		elseif(UnitLevel('player') ~= MAX_PLAYER_LEVEL and not self.Experience.RepOnly) then
 			local min, max = UnitXP('player'), UnitXPMax('player')
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
@@ -102,7 +104,7 @@ end
 function oUF:UNIT_PET_EXPERIENCE(event, unit)
 	if(self.unit == 'pet') then
 		local bar = self.Experience
-		if(UnitLevel('pet') ~= UnitLevel('player') and english == 'HUNTER') then
+		if(UnitLevel('pet') ~= UnitLevel('player') and english == 'HUNTER' and not self.Experience.RepOnly) then
 			local min, max = GetPetExperience()
 			bar:SetMinMaxValues(0, max)
 			bar:SetValue(min)
