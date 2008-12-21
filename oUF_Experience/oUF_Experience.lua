@@ -10,8 +10,6 @@
 	 - MouseOver [boolean]
 
 --]]
-local localized, english = UnitClass('player')
-
 local function Tooltip(self, unit, min, max)
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
 	GameTooltip:AddLine(string.format('XP: %d/%d (%.1f%%)', min, max, min/max*100))
@@ -25,20 +23,19 @@ local function Tooltip(self, unit, min, max)
 end
 
 local function Update(self, event, unit)
+	if(self.unit ~= unit) then return end
 	local bar = self.Experience
 	
-	if(event == 'UNIT_PET' and self.unit ~= 'player') then
-		return
-	elseif(self.unit == 'player' and UnitLevel('player') == MAX_PLAYER_LEVEL) then
+	if(self.unit == 'pet' and UnitLevel('pet') == UnitLevel('player')) then
 		bar:SetAlpha(0)
-	elseif(self.unit == 'pet' and (UnitLevel('pet') == UnitLevel('player') and english ~= 'HUNTER')) then
+	elseif(self.unit == 'player' and UnitLevel('player') == MAX_PLAYER_LEVEL) then
 		bar:SetAlpha(0)
 	else
 		local min, max
-		if(self.unit == 'pet' and not bar.RepOnly) then
+		if(self.unit == 'pet') then
 			min, max = GetPetExperience()
-		elseif(self.unit == 'player' and not bar.RepOnly) then
-			min, max = UnitXP(self.unit), UnitXPMax(self.unit)
+		elseif(self.unit == 'player') then
+			min, max = UnitXP('player'), UnitXPMax('player')
 		end
 
 		bar:SetMinMaxValues(0, max)
@@ -55,10 +52,10 @@ local function Update(self, event, unit)
 		end
 
 		if(bar.Tooltip and bar.MouseOver) then
-			bar:SetScript('OnEnter', function() bar:SetAlpha(1); Tooltip(bar, unit, min, max) end)
+			bar:SetScript('OnEnter', function() bar:SetAlpha(1); Tooltip(bar, self.unit, min, max) end)
 			bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 		elseif(bar.Tooltip and not bar.MouseOver) then
-			bar:SetScript('OnEnter', function() Tooltip(bar, unit, min, max) end)
+			bar:SetScript('OnEnter', function() Tooltip(bar, self.unit, min, max) end)
 			bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 		elseif(bar.MouseOver and not bar.Tooltip) then
 			bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
@@ -87,8 +84,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	local experience = self.Experience
-	if(experience) then
+	if(self.Experience) then
 		self:UnregisterEvent('PLAYER_XP_UPDATE', Update)
 		self:UnregisterEvent('UNIT_PET_EXPERIENCE', Update)
 		self:UnregisterEvent('UNIT_PET', Update)
