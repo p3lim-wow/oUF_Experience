@@ -2,7 +2,7 @@
 ## Author: p3lim
 ## Version: 30000.wowi:revision
 ## Title: oUF Experience
-## Notes: Experience/Reputation Bar support for oUF layouts.
+## Notes: Experience Bar support for oUF layouts.
 ## RequiredDeps: oUF
 
 oUF_Experience.lua
