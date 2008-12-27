@@ -27,9 +27,9 @@ local function Update(self, event, unit)
 	local bar = self.Experience
 	
 	if(self.unit == 'pet' and UnitLevel('pet') == UnitLevel('player')) then
-		bar:SetAlpha(0)
+		bar:Hide()
 	elseif(self.unit == 'player' and UnitLevel('player') == MAX_PLAYER_LEVEL) then
-		bar:SetAlpha(0)
+		bar:Hide()
 	else
 		local min, max
 		if(self.unit == 'pet') then
@@ -42,6 +42,7 @@ local function Update(self, event, unit)
 		bar:SetValue(min)
 		bar:EnableMouse()
 		bar:SetStatusBarColor(unpack(bar.Colors or self.colors.health))
+		bar:Show()
 
 		if(not bar.MouseOver) then
 			bar:SetAlpha(1)
