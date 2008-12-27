@@ -5,7 +5,7 @@
 	 .Experience.Text [fontstring] (optional)
 
 	Shared:
-	 - Color [table] - will use oUF.colors.health if not set
+	 - Colors [table] - will use oUF.colors.health if not set
 	 - Tooltip [boolean]
 	 - MouseOver [boolean]
 
@@ -41,7 +41,7 @@ local function Update(self, event, unit)
 		bar:SetMinMaxValues(0, max)
 		bar:SetValue(min)
 		bar:EnableMouse()
-		bar:SetStatusBarColor(unpack(self.Color or self.colors.health))
+		bar:SetStatusBarColor(unpack(bar.Colors or self.colors.health))
 
 		if(not bar.MouseOver) then
 			bar:SetAlpha(1)
