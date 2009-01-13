@@ -23,9 +23,9 @@ local function Tooltip(self, unit, min, max)
 end
 
 local function Update(self, event, unit)
-	if(self.unit ~= unit) then return end
+	if(event == 'UNIT_PET' and unit ~= 'player') then return end
 	local bar = self.Experience
-	
+
 	if(self.unit == 'pet' and UnitLevel('pet') == UnitLevel('player')) then
 		bar:Hide()
 	elseif(self.unit == 'player' and UnitLevel('player') == MAX_PLAYER_LEVEL) then
@@ -54,13 +54,8 @@ local function Update(self, event, unit)
 
 		if(bar.Tooltip and bar.MouseOver) then
 			bar:SetScript('OnEnter', function() bar:SetAlpha(1); Tooltip(bar, self.unit, min, max) end)
-			bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
 		elseif(bar.Tooltip and not bar.MouseOver) then
 			bar:SetScript('OnEnter', function() Tooltip(bar, self.unit, min, max) end)
-			bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
-		elseif(bar.MouseOver and not bar.Tooltip) then
-			bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
-			bar:SetScript('OnLeave', function() bar:SetAlpha(0) end)
 		end
 	end
 end
@@ -76,8 +71,15 @@ local function Enable(self)
 			experience:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
 
-		if(experience.MouseOver) then
+		if(experience.Tooltip and experience.MouseOver) then
 			experience:SetAlpha(0)
+			experience:SetScript('OnLeave', function(self) self:SetAlpha(0); GameTooltip:Hide() end)
+		elseif(experience.MouseOver and not experience.Tooltip) then
+			experience:SetAlpha(0)
+			experience:SetScript('OnEnter', function(self) self:SetAlpha(1) end)
+			experience:SetScript('OnLeave', function(self) self:SetAlpha(0) end)
+		elseif(experience.Tooltip and not experience.MouseOver) then
+			experience:SetScript('OnLeave', function(self) GameTooltip:Hide() end)
 		end
 
 		return true
