@@ -5,9 +5,12 @@
 	 .Experience.Text [fontstring] (optional)
 
 	Shared:
-	 - Colors [table] - will use oUF.colors.health if not set
-	 - Tooltip [boolean]
 	 - MouseOver [boolean]
+	 - Tooltip [boolean]
+
+	Functions that can be overridden from within a layout:
+	 - :PostUpdate(event, unit, bar, min, max)
+	 - :OverrideText(min, max)
 
 --]]
 local function Tooltip(self, unit, min, max)
@@ -23,33 +26,27 @@ local function Tooltip(self, unit, min, max)
 end
 
 local function Update(self, event, unit)
-	if(event == 'UNIT_PET' and unit ~= 'player') then return end
 	local bar = self.Experience
+	local min, max
 
-	if(self.unit == 'pet' and UnitLevel('pet') == UnitLevel('player')) then
-		bar:Hide()
-	elseif(self.unit == 'player' and UnitLevel('player') == MAX_PLAYER_LEVEL) then
-		bar:Hide()
-	else
-		local min, max
+	if(self.unit == 'player' and (UnitLevel(self.unit) ~= MAX_PLAYER_LEVEL) or self.unit == 'pet' and (UnitLevel(self.unit) ~= UnitLevel('player'))) then
 		if(self.unit == 'pet') then
 			min, max = GetPetExperience()
 		elseif(self.unit == 'player') then
-			min, max = UnitXP('player'), UnitXPMax('player')
+			min, max = UnitXP(self.unit), UnitXPMax(self.unit)
 		end
 
 		bar:SetMinMaxValues(0, max)
 		bar:SetValue(min)
 		bar:EnableMouse()
-		bar:SetStatusBarColor(unpack(bar.Colors or self.colors.health))
 		bar:Show()
 
-		if(not bar.MouseOver) then
-			bar:SetAlpha(1)
-		end
-
 		if(bar.Text) then
-			bar.Text:SetFormattedText('%d / %d', min, max)
+			if(bar.OverrideText) then
+				bar:OverrideText(min, max)
+			else
+				bar.Text:SetFormattedText('%d / %d', min, max)
+			end
 		end
 
 		if(bar.Tooltip and bar.MouseOver) then
@@ -57,6 +54,10 @@ local function Update(self, event, unit)
 		elseif(bar.Tooltip and not bar.MouseOver) then
 			bar:SetScript('OnEnter', function() Tooltip(bar, self.unit, min, max) end)
 		end
+
+		if(bar.PostUpdate) then bar.PostUpdate(self, event, unit, bar, min, max) end
+	else
+		bar:Hide()
 	end
 end
 
@@ -65,7 +66,6 @@ local function Enable(self)
 	if(experience) then
 		self:RegisterEvent('PLAYER_XP_UPDATE', Update)
 		self:RegisterEvent('UNIT_PET_EXPERIENCE', Update)
-		self:RegisterEvent('UNIT_PET', Update)
 
 		if(not experience:GetStatusBarTexture()) then
 			experience:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
@@ -79,7 +79,7 @@ local function Enable(self)
 			experience:SetScript('OnEnter', function(self) self:SetAlpha(1) end)
 			experience:SetScript('OnLeave', function(self) self:SetAlpha(0) end)
 		elseif(experience.Tooltip and not experience.MouseOver) then
-			experience:SetScript('OnLeave', function(self) GameTooltip:Hide() end)
+			experience:SetScript('OnLeave', function() GameTooltip:Hide() end)
 		end
 
 		return true
@@ -90,7 +90,6 @@ local function Disable(self)
 	if(self.Experience) then
 		self:UnregisterEvent('PLAYER_XP_UPDATE', Update)
 		self:UnregisterEvent('UNIT_PET_EXPERIENCE', Update)
-		self:UnregisterEvent('UNIT_PET', Update)
 	end
 end
 
