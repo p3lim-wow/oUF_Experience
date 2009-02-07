@@ -13,18 +13,14 @@
 	 - :OverrideText(min, max)
 
 --]]
-
 local localized, class = UnitClass('player')
 
-local function Tooltip(self, unit, min, max)
+local function Tooltip(self, unit, min, max, num)
+	if(self.MouseOver) then self:SetAlpha(1) end
+
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
 	GameTooltip:AddLine(string.format('XP: %d/%d (%.1f%%)', min, max, min/max*100))
-
-	if(unit == 'pet') then
-		GameTooltip:AddLine(string.format('%d needed (%.1f%% - %.1f bars)', max-min, (max-min)/max*100, 6*(max-min)/max))
-	else
-		GameTooltip:AddLine(string.format('%d needed (%.1f%% - %.1f bars)', max-min, (max-min)/max*100, 20*(max-min)/max))
-	end
+	GameTooltip:AddLine(string.format('%d needed (%.1f%% - %.1f bars)', max-min, (max-min)/max*100, num*(max-min)/max))
 
 	if(unit == 'player' and GetXPExhaustion()) then
 		GameTooltip:AddLine(string.format('|cff0090ffRested: +%d (%.1f%%)', GetXPExhaustion(), GetXPExhaustion()/max*100))
@@ -42,33 +38,33 @@ local function GetXP(unit)
 end
 
 local function Update(self, event, unit)
+	if(event == 'UNIT_PET' and unit ~= 'player') then return end
+
 	local bar = self.Experience
+	if(self.unit == 'player' and UnitLevel('player') == MAX_PLAYER_LEVEL) then return bar:Hide() end
+	if(self.unit == 'pet' and class ~= 'HUNTER') then return bar:Hide() end
+	if(self.unit == 'pet' and UnitLevel('pet') >= UnitLevel('player')) then bar:Hide() end
 
-	if(self.unit == 'player' and (UnitLevel(self.unit) ~= MAX_PLAYER_LEVEL) or (self.unit == 'pet' and class == 'HUNTER') and (UnitLevel(self.unit) < UnitLevel('player'))) then
-		local min, max = GetXP(self.unit)
+	local min, max = GetXP(self.unit)
+	bar:SetMinMaxValues(0, max)
+	bar:SetValue(min)
+	bar:Show()
 
-		bar:SetMinMaxValues(0, max)
-		bar:SetValue(min)
-		bar:Show()
-
-		if(bar.Text) then
-			if(bar.OverrideText) then
-				bar:OverrideText(min, max)
-			else
-				bar.Text:SetFormattedText('%d / %d', min, max)
-			end
+	if(bar.Text) then
+		if(bar.OverrideText) then
+			bar:OverrideText(min, max)
+		else
+			bar.Text:SetFormattedText('%d / %d', min, max)
 		end
-
-		if(bar.Tooltip and bar.MouseOver) then
-			bar:SetScript('OnEnter', function() bar:SetAlpha(1); Tooltip(bar, self.unit, min, max) end)
-		elseif(bar.Tooltip and not bar.MouseOver) then
-			bar:SetScript('OnEnter', function() Tooltip(bar, self.unit, min, max) end)
-		end
-
-		if(bar.PostUpdate) then bar.PostUpdate(self, event, unit, bar, min, max) end
-	else
-		bar:Hide()
 	end
+
+	if(bar.Tooltip) then
+		bar:SetScript('OnEnter', function()
+			Tooltip(bar, self.unit, min, max, self.unit == 'pet' and 6 or 20)
+		end)
+	end
+
+	if(bar.PostUpdate) then bar.PostUpdate(self, event, unit, bar, min, max) end
 end
 
 local function Enable(self, unit)
@@ -85,10 +81,6 @@ local function Enable(self, unit)
 			experience:EnableMouse()
 		end
 
-		if(not experience:GetStatusBarTexture()) then
-			experience:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
-		end
-
 		if(experience.Tooltip and experience.MouseOver) then
 			experience:SetAlpha(0)
 			experience:SetScript('OnLeave', function(self) self:SetAlpha(0); GameTooltip:Hide() end)
@@ -98,6 +90,10 @@ local function Enable(self, unit)
 			experience:SetScript('OnLeave', function(self) self:SetAlpha(0) end)
 		elseif(experience.Tooltip and not experience.MouseOver) then
 			experience:SetScript('OnLeave', function() GameTooltip:Hide() end)
+		end
+
+		if(not experience:GetStatusBarTexture()) then
+			experience:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
 
 		return true
