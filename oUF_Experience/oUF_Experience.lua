@@ -44,17 +44,7 @@ end
 local function Update(self, event)
 	local bar, unit = self.Experience, self.unit
 
-	if(UnitLevel(unit) == MAX_PLAYER_LEVEL) then
-		self:DisableElement('Experience')
-
-		if(bar.Rested) then
-			bar.Rested:Hide()
-		end
-
-		return bar:Hide()
-	end
-
-	if(UnitLevel('pet') == 0 and unit == 'pet') then
+	if(unit == 'pet' and UnitLevel('pet') == UnitLevel('player')) then
 		bar:Hide()
 	else
 		bar:Show()
@@ -80,6 +70,9 @@ local function Update(self, event)
 			bar.Rested:SetMinMaxValues(0, 1)
 			bar.Rested:SetValue(0)
 		end
+	elseif(bar.Rested and unit ~= 'player') then
+		bar.Rested:SetMinMaxValues(0, 1)
+		bar.Rested:SetValue(0)
 	end
 
 	if(bar.PostUpdate) then
@@ -93,6 +86,14 @@ local function Update(self, event)
 	end
 end
 
+local function UpdateLevel(self, event)
+	if(UnitLevel('player') == MAX_PLAYER_LEVEL) then
+		self:DisableElement('Experience')
+	else
+		Update(self, event)
+	end
+end
+
 local function Enable(self, unit)
 	local xp = self.Experience
 	if(xp) then
@@ -100,14 +101,14 @@ local function Enable(self, unit)
 			xp:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
 
-		if(unit == 'player') then
+		if(unit == 'player' and UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
 			self:RegisterEvent('PLAYER_XP_UPDATE', Update)
-			self:RegisterEvent('PLAYER_LEVEL_UP', Update)
+			self:RegisterEvent('PLAYER_LEVEL_UP', UpdateLevel)
 
 			if(xp.Rested) then
 				self:RegisterEvent('UPDATE_EXHAUSTION', Update)
 			end
-		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then -- only called once so select is "ok"
+		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER' and UnitLevel('pet') ~= MAX_PLAYER_LEVEL) then -- only called once so select is "ok"
 			self:RegisterEvent('UNIT_PET_EXPERIENCE', Update)
 		end
 
@@ -133,12 +134,15 @@ end
 local function Disable(self, unit)
 	local xp = self.Experience
 	if(xp) then
+		xp:Hide()
+
 		if(unit == 'player') then
 			self:UnregisterEvent('PLAYER_XP_UPDATE', Update)
-			self:UnregisterEvent('PLAYER_LEVEL_UP', Update)
+			self:UnregisterEvent('PLAYER_LEVEL_UP', UpdateLevel)
 
 			if(xp.Rested) then
 				self:UnregisterEvent('UPDATE_EXHAUSTION', Update)
+				xp.Rested:Hide()
 			end
 		elseif(unit == 'pet') then
 			self:UnregisterEvent('UNIT_PET_EXPERIENCE', Update)
