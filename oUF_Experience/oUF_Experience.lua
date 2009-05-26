@@ -26,7 +26,7 @@ local function showTooltip(self, unit, min, max, bars)
 	GameTooltip:AddLine(format('%d needed (%.1f%% - %.1f bars)', max - min, (max - min) / max * 100, bars * (max - min) / max))
 
 	local rested = GetXPExhaustion()
-	if(unit == 'player' and rested > 0) then
+	if(unit == 'player' and rested  and rested > 0) then
 		GameTooltip:AddLine(format('|cff0090ffRested: +%d (%.1f%%)', rested, rested / max * 100))
 	end
 
@@ -41,15 +41,8 @@ local function getXP(unit)
 	end
 end
 
-local function Update(self, event)
+local function Update(self)
 	local bar, unit = self.Experience, self.unit
-
-	if(unit == 'pet' and UnitLevel('pet') == UnitLevel('player')) then
-		bar:Hide()
-	else
-		bar:Show()
-	end
-
 	local min, max = getXP(unit)
 	bar:SetMinMaxValues(math.min(0, min), max)
 	bar:SetValue(min)
@@ -86,68 +79,87 @@ local function Update(self, event)
 	end
 end
 
-local function UpdateLevel(self, event)
-	if(UnitLevel('player') == MAX_PLAYER_LEVEL) then
-		self:DisableElement('Experience')
+local function LevelCheck(self)
+	if(UnitLevel(self.unit) == MAX_PLAYER_LEVEL) then
+		return self:DisableElement('Experience')
 	else
-		Update(self, event)
+		Update(self)
+	end
+
+	if(self.unit == 'pet') then
+		if(UnitLevel(self.unit) == UnitLevel('player')) then
+			self.Experience:Hide()
+		else
+			self.Experience:Show()
+		end
 	end
 end
 
 local function Enable(self, unit)
-	local xp = self.Experience
-	if(xp) then
-		if(not xp:GetStatusBarTexture()) then
-			xp:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
+	local bar = self.Experience
+	if(bar) then
+		if(not bar:GetStatusBarTexture()) then
+			bar:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
 
-		if(unit == 'player' and UnitLevel('player') ~= MAX_PLAYER_LEVEL) then
-			self:RegisterEvent('PLAYER_XP_UPDATE', Update)
-			self:RegisterEvent('PLAYER_LEVEL_UP', UpdateLevel)
+		if(unit == 'player') then
+			if(UnitLevel(unit) ~= MAX_PLAYER_LEVEL) then
+				self:RegisterEvent('PLAYER_XP_UPDATE', Update)
+				self:RegisterEvent('PLAYER_LEVEL_UP', LevelCheck)
 
-			if(xp.Rested) then
-				self:RegisterEvent('UPDATE_EXHAUSTION', Update)
+				if(bar.Rested) then
+					self:RegisterEvent('UPDATE_EXHAUSTION', Update)
+				end
+			else
+				bar:Hide()
+
+				if(bar.Rested) then
+					bar.Rested:Hide()
+				end
 			end
-		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER' and UnitLevel('pet') ~= MAX_PLAYER_LEVEL) then -- only called once so select is "ok"
-			self:RegisterEvent('UNIT_PET_EXPERIENCE', Update)
+		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then
+			if(UnitLevel(unit) ~= MAX_PLAYER_LEVEL) then
+				self:RegisterEvent('UNIT_PET_EXPERIENCE', LevelCheck)
+			else
+				bar:Hide()
+			end
 		end
 
-		if(xp.MouseOver or xp.Tooltip) then
-			xp:EnableMouse()
+		if(bar.MouseOver or bar.Tooltip) then
+			bar:EnableMouse()
 		end
 
-		if(xp.MouseOver and xp.Tooltip) then
-			xp:SetAlpha(0)
-			xp:SetScript('OnLeave', function() xp:SetAlpha(0); GameTooltip:Hide() end)
-		elseif(xp.MouseOver and not xp.Tooltip) then
-			xp:SetAlpha(0)
-			xp:SetScript('OnEnter', function() xp:SetAlpha(1) end)
-			xp:SetScript('OnLeave', function() xp:SetAlpha(0) end)
-		elseif(not xp.MouseOver and xp.Tooltip) then
-			xp:SetScript('OnLeave', function() GameTooltip:Hide() end)
+		if(bar.MouseOver and bar.Tooltip) then
+			bar:SetAlpha(0)
+			bar:SetScript('OnLeave', function() bar:SetAlpha(0); GameTooltip:Hide() end)
+		elseif(bar.MouseOver and not bar.Tooltip) then
+			bar:SetAlpha(0)
+			bar:SetScript('OnEnter', function() bar:SetAlpha(1) end)
+			bar:SetScript('OnLeave', function() bar:SetAlpha(0) end)
+		elseif(not bar.MouseOver and bar.Tooltip) then
+			bar:SetScript('OnLeave', function() GameTooltip:Hide() end)
 		end
 
 		return true
-	end	
+	end
 end
 
 local function Disable(self, unit)
-	local xp = self.Experience
-	if(xp) then
-		xp:Hide()
-
+	local bar = self.Experience
+	if(bar) then
 		if(unit == 'player') then
 			self:UnregisterEvent('PLAYER_XP_UPDATE', Update)
-			self:UnregisterEvent('PLAYER_LEVEL_UP', UpdateLevel)
+			bar:Hide()
 
-			if(xp.Rested) then
+			if(bar.Rested) then
 				self:UnregisterEvent('UPDATE_EXHAUSTION', Update)
-				xp.Rested:Hide()
+				bar:Hide()
 			end
 		elseif(unit == 'pet') then
 			self:UnregisterEvent('UNIT_PET_EXPERIENCE', Update)
+			bar:Hide()
 		end
 	end
 end
 
-oUF:AddElement('Experience', Update, Enable, Disable)
+oUF:AddElement('Experience', Update, Enable)
