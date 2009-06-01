@@ -56,7 +56,7 @@ local function Update(self)
 	end
 
 	if(bar.Rested and unit == 'player') then
-		if(GetXPExhaustion() > 0) then
+		if(GetXPExhaustion() and GetXPExhaustion() > 0) then
 			bar.Rested:SetMinMaxValues(min, max)
 			bar.Rested:SetValue(math.min(min + GetXPExhaustion(), max))
 		else
