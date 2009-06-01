@@ -117,9 +117,13 @@ local function Enable(self, unit)
 					bar.Rested:Hide()
 				end
 			end
-		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then
-			if(UnitLevel(unit) ~= MAX_PLAYER_LEVEL) then
-				self:RegisterEvent('UNIT_PET_EXPERIENCE', LevelCheck)
+		elseif(unit == 'pet') then
+			if(select(2, UnitClass('player')) == 'HUNTER') then
+				if(UnitLevel(unit) ~= MAX_PLAYER_LEVEL) then
+					self:RegisterEvent('UNIT_PET_EXPERIENCE', LevelCheck)
+				else
+					bar:Hide()
+				end
 			else
 				bar:Hide()
 			end
