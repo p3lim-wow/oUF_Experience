@@ -25,9 +25,8 @@ local function showTooltip(self, unit, min, max, bars)
 	GameTooltip:AddLine(format('XP: %d/%d (%.1f%%)', min, max, min / max * 100))
 	GameTooltip:AddLine(format('%d needed (%.1f%% - %.1f bars)', max - min, (max - min) / max * 100, bars * (max - min) / max))
 
-	local rested = GetXPExhaustion()
-	if(unit == 'player' and rested  and rested > 0) then
-		GameTooltip:AddLine(format('|cff0090ffRested: +%d (%.1f%%)', rested, rested / max * 100))
+	if(unit == 'player' and GetXPExhaustion() and GetXPExhaustion() > 0) then
+		GameTooltip:AddLine(format('|cff0090ffRested: +%d (%.1f%%)', GetXPExhaustion(), GetXPExhaustion() / max * 100))
 	end
 
 	GameTooltip:Show()
@@ -44,7 +43,7 @@ end
 local function Update(self)
 	local bar, unit = self.Experience, self.unit
 	local min, max = getXP(unit)
-	bar:SetMinMaxValues(math.min(0, min), max)
+	bar:SetMinMaxValues(0, max)
 	bar:SetValue(min)
 
 	if(bar.Text) then
@@ -57,7 +56,7 @@ local function Update(self)
 
 	if(bar.Rested and unit == 'player') then
 		if(GetXPExhaustion() and GetXPExhaustion() > 0) then
-			bar.Rested:SetMinMaxValues(min, max)
+			bar.Rested:SetMinMaxValues(0, max)
 			bar.Rested:SetValue(math.min(min + GetXPExhaustion(), max))
 		else
 			bar.Rested:SetMinMaxValues(0, 1)
