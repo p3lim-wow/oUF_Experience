@@ -94,6 +94,12 @@ local function LevelCheck(self)
 	end
 end
 
+local function PetCheck(self, event, unit)
+	if(unit == 'player') then
+		LevelCheck(self)
+	end
+end
+
 local function Enable(self, unit)
 	local bar = self.Experience
 	if(bar) then
@@ -120,6 +126,7 @@ local function Enable(self, unit)
 			if(select(2, UnitClass('player')) == 'HUNTER') then
 				if(UnitLevel(unit) ~= MAX_PLAYER_LEVEL) then
 					self:RegisterEvent('UNIT_PET_EXPERIENCE', LevelCheck)
+					self:RegisterEvent('UNIT_PET', PetCheck)
 				else
 					bar:Hide()
 				end
