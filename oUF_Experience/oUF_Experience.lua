@@ -132,7 +132,7 @@ end
 local function disable(self, unit)
 	local bar = self.Experience
 	if(bar) then
-		if(unit == 'player')
+		if(unit == 'player') then
 			self:UnregisterEvent('PLAYER_XP_UPDATE', argChecks)
 			self:UnregisterEvent('PLAYER_LEVEL_UP', argChecks)
 			bar:Hide()
