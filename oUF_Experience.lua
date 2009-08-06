@@ -14,7 +14,17 @@
 
 --]]
 
-local function tooltip(self, unit, min, max)
+local function xp(unit)
+	if(unit == 'pet') then
+		return GetPetExperience()
+	else
+		return UnitXP(unit), UnitXPMax(unit)
+	end
+end
+
+local function tooltip(self)
+	local unit = self:GetParent().unit
+	local min, max = xp(unit)
 	local bars = unit == 'pet' and 6 or 20
 
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
@@ -26,14 +36,6 @@ local function tooltip(self, unit, min, max)
 	end
 
 	GameTooltip:Show()
-end
-
-local function xp(unit)
-	if(unit == 'pet') then
-		return GetPetExperience()
-	else
-		return UnitXP(unit), UnitXPMax(unit)
-	end
 end
 
 local function update(self)
@@ -62,12 +64,6 @@ local function update(self)
 			bar.Rested:SetValue(0)
 			bar.exhaustion = nil
 		end
-	end
-
-	if(bar.Tooltip) then
-		bar:SetScript('OnEnter', function()
-			tooltip(bar, unit, min, max)
-		end)
 	end
 
 	if(bar.PostUpdate) then
@@ -125,6 +121,7 @@ local function enable(self, unit)
 		if(bar.Tooltip) then
 			bar:EnableMouse()
 			bar:SetScript('OnLeave', GameTooltip_Hide)
+			bar:SetScript('OnEnter', tooltip)
 		end
 	end
 end
@@ -145,6 +142,10 @@ local function disable(self, unit)
 			self:UnregisterEvent('UNIT_PET_EXPERIENCE', argChecks)
 			self:UnregisterEvent('UNIT_PET', loadPet)
 			bar:Hide()
+		end
+
+		if(bar.Tooltip) then
+			bar:SetScript('OnEnter', nil)
 		end
 	end
 end
