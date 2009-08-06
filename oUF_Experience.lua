@@ -28,7 +28,7 @@ local function tooltip(self)
 	local bars = unit == 'pet' and 6 or 20
 
 	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
-	GameTooltip:AddLine(format('XP: %d / %d (%d%% - %d bars)', min, max, min / max * 100), bars)
+	GameTooltip:AddLine(format('XP: %d / %d (%d%% - %d bars)', min, max, min / max * 100, bars))
 	GameTooltip:AddLine(format('Left: %d (%d%% - %d bars)', max - min, (max - min) / max * 100, bars * (max - min) / max))
 
 	if(self.exhaustion) then
