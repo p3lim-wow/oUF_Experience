@@ -71,18 +71,18 @@ local function update(self)
 	end
 end
 
-local function argChecks(self, event, unit, ...)
+local function argChecks(self)
 	if(self.unit == 'player') then
 		if(IsXPUserDisabled()) then
 			self:DisableElement('Experience')
-			self:RegisterEvent('ENABLE_XP_GAIN', argChecks)
+			self:RegisterEvent('ENABLE_XP_GAIN', function(self, event) self:EnableElement('Experience') argChecks(self) end)
 		elseif(UnitLevel('player') == MAX_PLAYER_LEVEL) then
 			self:DisableElement('Experience')
 		else
 			update(self)
 		end
 	elseif(self.unit == 'pet') then
-		if(UnitLevel('pet') ~= UnitLevel('player')) then
+		if(UnitExists('pet') and UnitLevel('pet') ~= UnitLevel('player')) then
 			self.Experience:Show()
 			update(self)
 		else
@@ -123,6 +123,8 @@ local function enable(self, unit)
 			bar:SetScript('OnLeave', GameTooltip_Hide)
 			bar:SetScript('OnEnter', tooltip)
 		end
+
+		argChecks(self)
 	end
 end
 
