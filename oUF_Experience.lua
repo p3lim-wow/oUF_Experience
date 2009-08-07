@@ -145,10 +145,6 @@ local function disable(self, unit)
 			self:UnregisterEvent('UNIT_PET', loadPet)
 			bar:Hide()
 		end
-
-		if(bar.Tooltip) then
-			bar:SetScript('OnEnter', nil)
-		end
 	end
 end
 
