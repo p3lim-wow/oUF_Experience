@@ -152,4 +152,4 @@ local function disable(self, unit)
 	end
 end
 
-oUF:AddElement('Experience', update, enable, disable)
+oUF:AddElement('Experience', argChecks, enable, disable)
