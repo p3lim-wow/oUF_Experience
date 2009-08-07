@@ -124,7 +124,7 @@ local function enable(self, unit)
 			bar:HookScript('OnEnter', tooltip)
 		end
 
-		argChecks(self)
+		return true
 	end
 end
 
