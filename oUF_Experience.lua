@@ -120,8 +120,8 @@ local function enable(self, unit)
 
 		if(bar.Tooltip) then
 			bar:EnableMouse()
-			bar:SetScript('OnLeave', GameTooltip_Hide)
-			bar:SetScript('OnEnter', tooltip)
+			bar:HookScript('OnLeave', GameTooltip_Hide)
+			bar:HookScript('OnEnter', tooltip)
 		end
 
 		argChecks(self)
