@@ -110,6 +110,7 @@ local function enable(self, unit)
 
 			if(bar.Rested) then
 				self:RegisterEvent('UPDATE_EXHAUSTION', argChecks)
+				bar.Rested:SetFrameLevel(1)
 			end
 		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then
 			self:RegisterEvent('UNIT_PET_EXPERIENCE', argChecks)
