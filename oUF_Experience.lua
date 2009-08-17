@@ -71,11 +71,11 @@ local function update(self)
 	end
 end
 
-local function argChecks(self)
+local function argcheck(self)
 	if(self.unit == 'player') then
 		if(IsXPUserDisabled()) then
 			self:DisableElement('Experience')
-			self:RegisterEvent('ENABLE_XP_GAIN', function(self, event) self:EnableElement('Experience') argChecks(self) end)
+			self:RegisterEvent('ENABLE_XP_GAIN', function() self:EnableElement('Experience') argcheck(self) end)
 		elseif(UnitLevel('player') == MAX_PLAYER_LEVEL) then
 			self:DisableElement('Experience')
 		else
@@ -91,9 +91,9 @@ local function argChecks(self)
 	end
 end
 
-local function loadPet(self, event, unit)
+local function petcheck(self, event, unit)
 	if(unit == 'player') then
-		argChecks(self)
+		argcheck(self)
 	end
 end
 
@@ -105,16 +105,16 @@ local function enable(self, unit)
 		end
 
 		if(unit == 'player') then
-			self:RegisterEvent('PLAYER_XP_UPDATE', argChecks)
-			self:RegisterEvent('PLAYER_LEVEL_UP', argChecks)
+			self:RegisterEvent('PLAYER_XP_UPDATE', argcheck)
+			self:RegisterEvent('PLAYER_LEVEL_UP', argcheck)
 
 			if(bar.Rested) then
-				self:RegisterEvent('UPDATE_EXHAUSTION', argChecks)
+				self:RegisterEvent('UPDATE_EXHAUSTION', argcheck)
 				bar.Rested:SetFrameLevel(1)
 			end
 		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then
-			self:RegisterEvent('UNIT_PET_EXPERIENCE', argChecks)
-			self:RegisterEvent('UNIT_PET', loadPet)
+			self:RegisterEvent('UNIT_PET_EXPERIENCE', argcheck)
+			self:RegisterEvent('UNIT_PET', petcheck)
 
 			if(bar.Rested) then
 				bar.Rested:Hide()
@@ -140,20 +140,20 @@ local function disable(self, unit)
 	local bar = self.Experience
 	if(bar) then
 		if(unit == 'player') then
-			self:UnregisterEvent('PLAYER_XP_UPDATE', argChecks)
-			self:UnregisterEvent('PLAYER_LEVEL_UP', argChecks)
+			self:UnregisterEvent('PLAYER_XP_UPDATE', argcheck)
+			self:UnregisterEvent('PLAYER_LEVEL_UP', argcheck)
 			bar:Hide()
 
 			if(bar.Rested) then
-				self:UnregisterEvent('UPDATE_EXHAUSTION', argChecks)
+				self:UnregisterEvent('UPDATE_EXHAUSTION', argcheck)
 				bar.Rested:Hide()
 			end
 		elseif(unit == 'pet') then
-			self:UnregisterEvent('UNIT_PET_EXPERIENCE', argChecks)
-			self:UnregisterEvent('UNIT_PET', loadPet)
+			self:UnregisterEvent('UNIT_PET_EXPERIENCE', argcheck)
+			self:UnregisterEvent('UNIT_PET', petcheck)
 			bar:Hide()
 		end
 	end
 end
 
-oUF:AddElement('Experience', argChecks, enable, disable)
+oUF:AddElement('Experience', argcheck, enable, disable)
