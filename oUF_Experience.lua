@@ -121,7 +121,6 @@ local function enable(self, unit)
 
 				if(bar.bg) then
 					bar.bg:SetParent(bar)
-					bar.bg:SetAllPoints(bar)
 				end
 
 				if(bar.Rested:GetBackdrop()) then
