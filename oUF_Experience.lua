@@ -123,6 +123,11 @@ local function enable(self, unit)
 					bar.bg:SetParent(bar)
 					bar.bg:SetAllPoints(bar)
 				end
+
+				if(bar.Rested:GetBackdrop()) then
+					bar:SetBackdrop(bar.Rested:GetBackdrop())
+					bar:SetBackdropColor(bar.Rested:GetBackdropColor())
+				end
 			end
 		end
 
