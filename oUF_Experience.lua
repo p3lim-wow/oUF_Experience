@@ -111,10 +111,17 @@ local function enable(self, unit)
 			if(bar.Rested) then
 				self:RegisterEvent('UPDATE_EXHAUSTION', argChecks)
 			end
-		elseif(unit == 'pet') then
-			if(select(2, UnitClass('player')) == 'HUNTER') then
-				self:RegisterEvent('UNIT_PET_EXPERIENCE', argChecks)
-				self:RegisterEvent('UNIT_PET', loadPet)
+		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then
+			self:RegisterEvent('UNIT_PET_EXPERIENCE', argChecks)
+			self:RegisterEvent('UNIT_PET', loadPet)
+
+			if(bar.Rested) then
+				bar.Rested:Hide()
+
+				if(bar.bg) then
+					bar.bg:SetParent(bar)
+					bar.bg:SetAllPoints(bar)
+				end
 			end
 		end
 
