@@ -140,10 +140,10 @@ local function enable(self, unit)
 	end
 end
 
-local function disable(self, unit)
+local function disable(self)
 	local bar = self.Experience
 	if(bar) then
-		if(unit == 'player') then
+		if(self.unit == 'player') then
 			self:UnregisterEvent('PLAYER_XP_UPDATE', argcheck)
 			self:UnregisterEvent('PLAYER_LEVEL_UP', argcheck)
 			bar:Hide()
@@ -152,7 +152,7 @@ local function disable(self, unit)
 				self:UnregisterEvent('UPDATE_EXHAUSTION', argcheck)
 				bar.Rested:Hide()
 			end
-		elseif(unit == 'pet') then
+		elseif(self.unit == 'pet') then
 			self:UnregisterEvent('UNIT_PET_EXPERIENCE', argcheck)
 			self:UnregisterEvent('UNIT_PET', petcheck)
 			bar:Hide()
