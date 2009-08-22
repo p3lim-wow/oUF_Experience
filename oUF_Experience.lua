@@ -101,7 +101,7 @@ local function enable(self, unit)
 	local bar = self.Experience
 	if(bar) then
 		if(not bar:GetStatusBarTexture()) then
-			bar:SetStatusBarTexture()
+			bar:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
 
 		if(unit == 'player') then
