@@ -91,6 +91,7 @@ local function argcheck(self)
 	end
 end
 
+-- Only validate the player pet on load
 local function petcheck(self, event, unit)
 	if(unit == 'player') then
 		argcheck(self)
@@ -116,6 +117,7 @@ local function enable(self, unit)
 			self:RegisterEvent('UNIT_PET_EXPERIENCE', argcheck)
 			self:RegisterEvent('UNIT_PET', petcheck)
 
+			-- Avoid rested for pet unit
 			if(bar.Rested) then
 				bar.Rested:Hide()
 
