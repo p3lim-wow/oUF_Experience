@@ -43,6 +43,7 @@ local function update(self)
 	local min, max = xp(unit)
 	bar:SetMinMaxValues(0, max)
 	bar:SetValue(min)
+	bar.exhaustion = unit == 'player' and GetXPExhaustion()
 
 	if(bar.Text) then
 		if(bar.OverrideText) then
@@ -53,12 +54,9 @@ local function update(self)
 	end
 
 	if(bar.Rested) then
-		local exhaustion = GetXPExhaustion()
-
-		if(unit == 'player' and exhaustion and exhaustion > 0) then
+		if(bar.exhaustion and bar.exhaustion > 0) then
 			bar.Rested:SetMinMaxValues(0, max)
-			bar.Rested:SetValue(math.min(min + exhaustion, max))
-			bar.exhaustion = exhaustion
+			bar.Rested:SetValue(math.min(min + bar.exhaustion, max))
 		else
 			bar.Rested:SetMinMaxValues(0, 1)
 			bar.Rested:SetValue(0)
