@@ -1,6 +1,6 @@
 ## Interface: 30200
 ## Author: p3lim
-## Version: 30200.3-Release
+## Version: 30200.4-Release
 ## Title: oUF Experience
 ## Notes: Experience Bar support for oUF layouts.
 ## RequiredDeps: oUF
