@@ -14,6 +14,8 @@
 
 --]]
 
+local hunter = select(2, UnitClass('player')) == 'HUNTER'
+
 local function xp(unit)
 	if(unit == 'pet') then
 		return GetPetExperience()
@@ -40,10 +42,12 @@ end
 
 local function update(self)
 	local bar, unit = self.Experience, self.unit
+
+	local exhaustion = GetXPExhaustion()
 	local min, max = xp(unit)
 	bar:SetMinMaxValues(0, max)
 	bar:SetValue(min)
-	bar.exhaustion = unit == 'player' and GetXPExhaustion()
+	bar:Show()
 
 	if(bar.Text) then
 		if(bar.OverrideText) then
@@ -54,9 +58,10 @@ local function update(self)
 	end
 
 	if(bar.Rested) then
-		if(bar.exhaustion and bar.exhaustion > 0) then
+		if(unit == 'player' and exhaustion and exhaustion > 0) then
 			bar.Rested:SetMinMaxValues(0, max)
-			bar.Rested:SetValue(math.min(min + bar.exhaustion, max))
+			bar.Rested:SetValue(math.min(min + exhaustion, max))
+			bar.exhaustion = exhaustion
 		else
 			bar.Rested:SetMinMaxValues(0, 1)
 			bar.Rested:SetValue(0)
@@ -70,26 +75,32 @@ local function update(self)
 end
 
 local function argcheck(self)
+	local bar = self.Experience
+
 	if(self.unit == 'player') then
 		if(IsXPUserDisabled()) then
 			self:DisableElement('Experience')
-			self:RegisterEvent('ENABLE_XP_GAIN', function() self:EnableElement('Experience') argcheck(self) end)
+			self:RegisterEvent('ENABLE_XP_GAIN', function(self)
+				self:EnableElement('Experience')
+				self:UpdateElement('Experience')
+			end)
 		elseif(UnitLevel('player') == MAX_PLAYER_LEVEL) then
-			self:DisableElement('Experience')
+			bar:Hide()
 		else
 			update(self)
 		end
 	elseif(self.unit == 'pet') then
-		if(UnitExists('pet') and UnitLevel('pet') ~= UnitLevel('player')) then
-			self.Experience:Show()
+		if(not self.disallowVehicleSwap and UnitHasVehicleUI('player')) then
+			update(self)
+			bar:Hide()
+		elseif(UnitExists('pet') and UnitLevel('pet') ~= UnitLevel('player') and hunter) then
 			update(self)
 		else
-			self.Experience:Hide()
+			bar:Hide()
 		end
 	end
 end
 
--- Only validate the player pet on load
 local function petcheck(self, event, unit)
 	if(unit == 'player') then
 		argcheck(self)
@@ -98,36 +109,28 @@ end
 
 local function enable(self, unit)
 	local bar = self.Experience
+
 	if(bar) then
 		if(not bar:GetStatusBarTexture()) then
 			bar:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
 		end
 
-		if(unit == 'player') then
-			self:RegisterEvent('PLAYER_XP_UPDATE', argcheck)
-			self:RegisterEvent('PLAYER_LEVEL_UP', argcheck)
+		self:RegisterEvent('PLAYER_XP_UPDATE', argcheck)
+		self:RegisterEvent('PLAYER_LEVEL_UP', argcheck)
+		self:RegisterEvent('UNIT_PET', petcheck)
 
-			if(bar.Rested) then
-				self:RegisterEvent('UPDATE_EXHAUSTION', argcheck)
-				bar.Rested:SetFrameLevel(1)
-			end
-		elseif(unit == 'pet' and select(2, UnitClass('player')) == 'HUNTER') then
+		if(bar.Rested) then
+			self:RegisterEvent('UPDATE_EXHAUSTION', argcheck)
+			bar.Rested:SetFrameLevel(1)
+		end
+
+		if(hunter) then
 			self:RegisterEvent('UNIT_PET_EXPERIENCE', argcheck)
-			self:RegisterEvent('UNIT_PET', petcheck)
+		end
 
-			-- Avoid rested for pet unit
-			if(bar.Rested) then
-				bar.Rested:Hide()
-
-				if(bar.bg) then
-					bar.bg:SetParent(bar)
-				end
-
-				if(bar.Rested:GetBackdrop()) then
-					bar:SetBackdrop(bar.Rested:GetBackdrop())
-					bar:SetBackdropColor(bar.Rested:GetBackdropColor())
-				end
-			end
+		if(not self.disallowVehicleSwap) then
+			self:RegisterEvent('UNIT_ENTERED_VEHICLE', argcheck)
+			self:RegisterEvent('UNIT_EXITED_VEHICLE', argcheck)
 		end
 
 		if(bar.Tooltip) then
@@ -136,6 +139,18 @@ local function enable(self, unit)
 			bar:HookScript('OnEnter', tooltip)
 		end
 
+		bar:HookScript('OnHide', function(self)
+			if(self.Rested) then
+				self.Rested:Hide()
+			end
+		end)
+
+		bar:HookScript('OnShow', function(self)
+			if(self.Rested) then
+				self.Rested:Show()
+			end
+		end)
+
 		return true
 	end
 end
@@ -143,19 +158,22 @@ end
 local function disable(self)
 	local bar = self.Experience
 	if(bar) then
-		if(self.unit == 'player') then
-			self:UnregisterEvent('PLAYER_XP_UPDATE', argcheck)
-			self:UnregisterEvent('PLAYER_LEVEL_UP', argcheck)
-			bar:Hide()
+		bar:Hide()
+		self:UnregisterEvent('PLAYER_XP_UPDATE', argcheck)
+		self:UnregisterEvent('PLAYER_LEVEL_UP', argcheck)
+		self:UnregisterEvent('UNIT_PET', petcheck)
 
-			if(bar.Rested) then
-				self:UnregisterEvent('UPDATE_EXHAUSTION', argcheck)
-				bar.Rested:Hide()
-			end
-		elseif(self.unit == 'pet') then
+		if(bar.Rested) then
+			self:UnregisterEvent('UPDATE_EXHAUSTION', argcheck)
+		end
+
+		if(hunter) then
 			self:UnregisterEvent('UNIT_PET_EXPERIENCE', argcheck)
-			self:UnregisterEvent('UNIT_PET', petcheck)
-			bar:Hide()
+		end
+
+		if(not self.disallowVehicleSwap) then
+			self:UnregisterEvent('UNIT_ENTERED_VEHICLE', argcheck)
+			self:UnregisterEvent('UNIT_EXITED_VEHICLE', argcheck)
 		end
 	end
 end
