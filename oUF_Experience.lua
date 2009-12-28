@@ -15,7 +15,7 @@
 --]]
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, 'oUF ReadyCheck was unable to locate oUF install')
+assert(oUF, 'oUF Experience was unable to locate oUF install')
 
 local hunter = select(2, UnitClass('player')) == 'HUNTER'
 
