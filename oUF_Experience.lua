@@ -2,8 +2,6 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
-local hunterPlayer = select(2, UnitClass('player')) == 'HUNTER'
-
 local function GetXP(unit)
 	if(unit == 'pet') then
 		return GetPetExperience()
@@ -60,22 +58,24 @@ local function Update(self, event, owner)
 	end
 end
 
+local function Path(self, ...)
+	return (self.Experience.Override or Update) (self, ...)
+end
+
 local function Enable(self, unit)
 	local experience = self.Experience
 	if(experience) then
-		local Update = experience.Update or Update
-
-		self:RegisterEvent('PLAYER_XP_UPDATE', Update)
-		self:RegisterEvent('PLAYER_LEVEL_UP', Update)
-		self:RegisterEvent('UNIT_PET', Update)
+		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
+		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
+		self:RegisterEvent('UNIT_PET', Path)
 
 		if(experience.Rested) then
-			self:RegisterEvent('UPDATE_EXHAUSTION', Update)
+			self:RegisterEvent('UPDATE_EXHAUSTION', Path)
 			experience.Rested:SetFrameLevel(1)
 		end
 
-		if(hunterPlayer) then
-			self:RegisterEvent('UNIT_PET_EXPERIENCE', Update)
+		if(select(2, UnitClass('player')) == 'HUNTER') then
+			self:RegisterEvent('UNIT_PET_EXPERIENCE', Path)
 		end
 
 		if(not experience:GetStatusBarTexture()) then
@@ -89,20 +89,18 @@ end
 local function Disable(self)
 	local experience = self.Experience
 	if(experience) then
-		local Update = experience.Update or Update
-
-		self:UnregisterEvent('PLAYER_XP_UPDATE', Update)
-		self:UnregisterEvent('PLAYER_LEVEL_UP', Update)
-		self:UnregisterEvent('UNIT_PET', Update)
+		self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
+		self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
+		self:UnregisterEvent('UNIT_PET', Path)
 
 		if(experience.Rested) then
-			self:UnregisterEvent('UPDATE_EXHAUSTION', Update)
+			self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
 		end
 
-		if(hunterPlayer) then
-			self:UnregisterEvent('UNIT_PET_EXPERIENCE', Update)
+		if(select(2, UnitClass('player')) == 'HUNTER') then
+			self:UnregisterEvent('UNIT_PET_EXPERIENCE', Path)
 		end
 	end
 end
 
-oUF:AddElement('Experience', Update, Enable, Disable)
+oUF:AddElement('Experience', Path, Enable, Disable)
