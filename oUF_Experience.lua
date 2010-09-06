@@ -1,18 +1,3 @@
---[[
-
-	Elements handled:
-	 .Experience [statusbar]
-	 .Experience.Rested [statusbar] (optional, must be parented to Experience)
-	 .Experience.Text [fontstring] (optional)
-
-	Booleans:
-	 - noTooltip
-
-	Functions that can be overridden from within a layout:
-	 - PostUpdate(element unit, min, max)
-
---]]
-
 local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
