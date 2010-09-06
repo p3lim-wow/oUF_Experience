@@ -62,9 +62,16 @@ local function Path(self, ...)
 	return (self.Experience.Override or Update) (self, ...)
 end
 
+local function ForceUpdate(element)
+	return Path(element.__owner, 'ForceUpdate', element.__parent.unit)
+end
+
 local function Enable(self, unit)
 	local experience = self.Experience
 	if(experience) then
+		experience.__parent = self
+		experience.ForceUpdate = ForceUpdate
+
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
 		self:RegisterEvent('UNIT_PET', Path)
