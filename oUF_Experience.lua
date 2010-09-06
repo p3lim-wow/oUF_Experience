@@ -12,23 +12,6 @@ local function GetXP(unit)
 	end
 end
 
-local function SetTooltip(self)
-	local unit = self:GetParent().unit
-	local min, max = GetXP(unit)
-
-	local bars = unit == 'pet' and 6 or 20
-
-	GameTooltip:SetOwner(self, 'ANCHOR_BOTTOMRIGHT', 5, -5)
-	GameTooltip:AddLine(string.format('XP: %d / %d (%d%% - %d bars)', min, max, min/max * 100, bars))
-	GameTooltip:AddLine(string.format('Remaining: %d (%d%% - %d bars)', max - min, (max - min) / max * 100, bars * (max - min) / max))
-
-	if(self.rested) then
-		GameTooltip:AddLine(string.format('|cff0090ffRested: +%d (%d%%)', self.rested, self.rested / max * 100))
-	end
-
-	GameTooltip:Show()
-end
-
 local function Update(self, event, owner)
 	if(event == 'UNIT_PET' and owner ~= 'player') then return end
 
@@ -93,12 +76,6 @@ local function Enable(self, unit)
 
 		if(hunterPlayer) then
 			self:RegisterEvent('UNIT_PET_EXPERIENCE', Update)
-		end
-
-		if(not experience.noTooltip) then
-			experience:EnableMouse()
-			experience:HookScript('OnLeave', GameTooltip_Hide)
-			experience:HookScript('OnEnter', SetTooltip)
 		end
 
 		if(not experience:GetStatusBarTexture()) then
