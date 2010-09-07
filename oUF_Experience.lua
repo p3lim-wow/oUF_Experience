@@ -24,7 +24,7 @@ local function Update(self, event, unit)
 	if(experience.PreUpdate) then experience:PreUpdate(unit) end
 
 	if(Unbeneficial(self, unit)) then
-		experience:Hide()
+		return experience:Hide()
 	else
 		experience:Show()
 	end
