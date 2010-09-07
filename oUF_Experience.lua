@@ -2,55 +2,45 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
-local function GetXP(unit)
-	if(unit == 'pet') then
-		return GetPetExperience()
-	else
-		return UnitXP(unit), UnitXPMax(unit)
+local function Unbeneficial(self, unit)
+	if(unit == 'player') then
+		if(UnitLevel(unit) == MAX_PLAYER_LEVEL) then
+			return true
+		end
+	elseif(unit == 'pet') then
+		local _, hunterPet = HasPetUI()
+		if(not self.disallowVehicleSwap and UnitHasVehicleUI('player')) then
+			return true
+		elseif(not hunterPet or (UnitLevel(unit) == UnitLevel('player'))) then
+			return true
+		end
 	end
 end
 
-local function Update(self, event, owner)
-	if(event == 'UNIT_PET' and owner ~= 'player') then return end
-
+local function Update(self, event, unit)
+	if(self.unit ~= unit) then return end
 	local experience = self.Experience
-	-- Conditional hiding
-	if(self.unit == 'player') then
-		if(UnitLevel('player') == MAX_PLAYER_LEVEL) then
-			return experience:Hide()
-		end
-	elseif(self.unit == 'pet') then
-		local _, hunterPet = HasPetUI()
-		if(not self.disallowVehicleSwap and UnitHasVehicleUI('player')) then
-			return experience:Hide()
-		elseif(not hunterPet or (UnitLevel('pet') == UnitLevel('player'))) then
-			return experience:Hide()
-		end
+
+	if(Unbeneficial(self, unit)) then
+		experience:Hide()
 	else
-		return experience:Hide()
+		experience:Show()
 	end
 
-	local unit = self.unit
-	local min, max = GetXP(unit)
+	local min, max
+	if(unit == 'pet') then
+		min, max = GetPetExperience()
+	else
+		min, max = UnitXP(unit), UnitXPMax(unit)
+	end
+
 	experience:SetMinMaxValues(0, max)
 	experience:SetValue(min)
-	experience:Show()
-
-	if(experience.Text) then
-		experience.Text:SetFormattedText('%d / %d', min, max)
-	end
 
 	if(experience.Rested) then
-		local rested = GetXPExhaustion()
-		if(unit == 'player' and rested and rested > 0) then
-			experience.Rested:SetMinMaxValues(0, max)
-			experience.Rested:SetValue(math.min(min + rested, max))
-			experience.rested = rested
-		else
-			experience.Rested:SetMinMaxValues(0, 1)
-			experience.Rested:SetValue(0)
-			experience.rested = nil
-		end
+		local exhaustion = unit == 'player' and GetXPExhaustion() or 0
+		experience.Rested:SetMinMaxValues(0, max)
+		experience.Rested:SetValue(math.min(min + exhaustion, max))
 	end
 
 	if(experience.PostUpdate) then
@@ -66,7 +56,7 @@ local function ForceUpdate(element)
 	return Path(element.__owner, 'ForceUpdate', element.__parent.unit)
 end
 
-local function Enable(self, unit)
+local function Enable(self)
 	local experience = self.Experience
 	if(experience) then
 		experience.__parent = self
@@ -74,15 +64,11 @@ local function Enable(self, unit)
 
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
-		self:RegisterEvent('UNIT_PET', Path)
+		self:RegisterEvent('UNIT_PET_EXPERIENCE', Path)
 
 		if(experience.Rested) then
 			self:RegisterEvent('UPDATE_EXHAUSTION', Path)
-			experience.Rested:SetFrameLevel(1)
-		end
-
-		if(select(2, UnitClass('player')) == 'HUNTER') then
-			self:RegisterEvent('UNIT_PET_EXPERIENCE', Path)
+			experience.Rested:SetFrameLevel(experience:GetFrameLevel() - 1)
 		end
 
 		if(not experience:GetStatusBarTexture()) then
@@ -98,14 +84,10 @@ local function Disable(self)
 	if(experience) then
 		self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
-		self:UnregisterEvent('UNIT_PET', Path)
+		self:UnregisterEvent('UNIT_PET_EXPERIENCE', Path)
 
 		if(experience.Rested) then
 			self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
-		end
-
-		if(select(2, UnitClass('player')) == 'HUNTER') then
-			self:UnregisterEvent('UNIT_PET_EXPERIENCE', Path)
 		end
 	end
 end
