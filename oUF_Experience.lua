@@ -55,13 +55,13 @@ local function Path(self, ...)
 end
 
 local function ForceUpdate(element)
-	return Path(element.__owner, 'ForceUpdate', element.__parent.unit)
+	return Path(element.__owner, 'ForceUpdate', element.__owner.unit)
 end
 
 local function Enable(self)
 	local experience = self.Experience
 	if(experience) then
-		experience.__parent = self
+		experience.__owner = self
 		experience.ForceUpdate = ForceUpdate
 
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
