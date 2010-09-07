@@ -19,7 +19,9 @@ end
 
 local function Update(self, event, unit)
 	if(self.unit ~= unit) then return end
+
 	local experience = self.Experience
+	if(experience.PreUpdate) then experience:PreUpdate(unit) end
 
 	if(Unbeneficial(self, unit)) then
 		experience:Hide()
