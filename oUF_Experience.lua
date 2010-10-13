@@ -2,6 +2,49 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
+local tagStrings = {
+	['curxp'] = function(unit)
+		if(unit == 'pet') then
+			return GetPetExperience()
+		else
+			return UnitXP(unit)
+		end
+	end,
+	['maxxp'] = function(unit)
+		if(unit == 'pet') then
+			local _, max = GetPetExperience()
+			return max
+		else
+			return UnitXPMax(unit)
+		end
+	end,
+	['perxp'] = function(unit)
+		if(unit == 'pet') then
+			local min, max = GetPetExperience()
+			return math.floor(min / max * 100 + 0.5)
+		else
+			return math.floor(UnitXP(unit) / UnitXPMax(unit) * 100 + 0.5)
+		end
+	end,
+	['currested'] = function(unit)
+		return GetXPExhaustion()
+	end,
+	['perrested'] = function(unit)
+		local rested = GetXPExhaustion()
+		if(rested and rested > 0) then
+			return math.floor(rested / UnitXPMax(unit) * 100 + 0.5)
+		end
+	end,
+}
+
+local tagEvents = {
+	['curxp'] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE',
+	['maxxp'] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE',
+	['perxp'] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE',
+	['currested'] = 'UPDATE_EXHAUSTION',
+	['perrested'] = 'UPDATE_EXHAUSTION',
+}
+
 local function Unbeneficial(self, unit)
 	if(unit == 'player') then
 		if(UnitLevel(unit) == MAX_PLAYER_LEVEL) then
@@ -67,6 +110,14 @@ local function Enable(self)
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
 		self:RegisterEvent('UNIT_PET_EXPERIENCE', Path)
+
+		for tag, func in pairs(tagStrings) do
+			oUF.Tags[tag] = func
+		end
+
+		for tag, event in pairs(tagEvents) do
+			oUF.TagEvents[tag] = event
+		end
 
 		local rested = experience.Rested
 		if(rested) then
