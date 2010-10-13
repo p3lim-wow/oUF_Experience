@@ -1,6 +1,6 @@
 ## Interface: 40000
 ## Author: p3lim
-## Version: 40000.7-Release
+## Version: 40000.8-Release
 ## Title: oUF Experience
 ## Notes: Experience Bar support for oUF layouts.
 ## RequiredDeps: oUF
