@@ -68,9 +68,14 @@ local function Enable(self)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
 		self:RegisterEvent('UNIT_PET_EXPERIENCE', Path)
 
-		if(experience.Rested) then
+		local rested = experience.Rested
+		if(rested) then
 			self:RegisterEvent('UPDATE_EXHAUSTION', Path)
-			experience.Rested:SetFrameLevel(experience:GetFrameLevel() - 1)
+			rested:SetFrameLevel(experience:GetFrameLevel() - 1)
+
+			if(not rested:GetStatusBarTexture()) then
+				rested:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
+			end
 		end
 
 		if(not experience:GetStatusBarTexture()) then
