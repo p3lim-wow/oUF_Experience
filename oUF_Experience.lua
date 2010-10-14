@@ -2,7 +2,7 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
-local tagStrings = {
+for tag, func in pairs({
 	['curxp'] = function(unit)
 		if(unit == 'pet') then
 			return GetPetExperience()
@@ -26,7 +26,7 @@ local tagStrings = {
 			return math.floor(UnitXP(unit) / UnitXPMax(unit) * 100 + 0.5)
 		end
 	end,
-	['currested'] = function(unit)
+	['currested'] = function()
 		return GetXPExhaustion()
 	end,
 	['perrested'] = function(unit)
@@ -35,15 +35,10 @@ local tagStrings = {
 			return math.floor(rested / UnitXPMax(unit) * 100 + 0.5)
 		end
 	end,
-}
-
-local tagEvents = {
-	['curxp'] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE',
-	['maxxp'] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE',
-	['perxp'] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE',
-	['currested'] = 'UPDATE_EXHAUSTION',
-	['perrested'] = 'UPDATE_EXHAUSTION',
-}
+}) do
+	oUF.Tags[tag] = func
+	oUF.TagEvents[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UNIT_PET_EXPERIENCE UPDATE_EXHAUSTION'
+end
 
 local function Unbeneficial(self, unit)
 	if(unit == 'player') then
@@ -110,14 +105,6 @@ local function Enable(self)
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
 		self:RegisterEvent('UNIT_PET_EXPERIENCE', Path)
-
-		for tag, func in pairs(tagStrings) do
-			oUF.Tags[tag] = func
-		end
-
-		for tag, event in pairs(tagEvents) do
-			oUF.TagEvents[tag] = event
-		end
 
 		local rested = experience.Rested
 		if(rested) then
