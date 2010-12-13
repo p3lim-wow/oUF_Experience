@@ -41,15 +41,17 @@ for tag, func in pairs({
 end
 
 local function Unbeneficial(self, unit)
+	if(UnitHasVehicleUI('player')) then
+		return true
+	end
+
 	if(unit == 'player') then
 		if(UnitLevel(unit) == MAX_PLAYER_LEVEL) then
 			return true
 		end
 	elseif(unit == 'pet') then
 		local _, hunterPet = HasPetUI()
-		if(not self.disallowVehicleSwap and UnitHasVehicleUI('player')) then
-			return true
-		elseif(not hunterPet or (UnitLevel(unit) == UnitLevel('player'))) then
+		if(not hunterPet or (UnitLevel(unit) == UnitLevel('player'))) then
 			return true
 		end
 	end
