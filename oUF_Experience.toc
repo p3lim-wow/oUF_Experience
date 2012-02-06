@@ -1,6 +1,6 @@
 ## Interface: 40300
 ## Author: p3lim
-## Version: 40200.10-Release
+## Version: @project-version@
 ## Title: oUF Experience
 ## Notes: Experience Bar support for oUF layouts.
 ## RequiredDeps: oUF
