@@ -26,13 +26,14 @@ for tag, func in pairs({
 	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UPDATE_EXHAUSTION'
 end
 
+local maxLevel
 local function Update(self, event, unit)
 	if(self.unit ~= unit) then return end
 
 	local experience = self.Experience
 	if(experience.PreUpdate) then experience:PreUpdate(unit) end
 
-	if(UnitLevel(unit) == MAX_PLAYER_LEVEL or UnitHasVehicleUI('player')) then
+	if(UnitLevel(unit) == maxLevel or UnitHasVehicleUI('player')) then
 		experience:Hide()
 	else
 		experience:Show()
@@ -69,6 +70,8 @@ local function Enable(self, unit)
 
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
+
+		maxLevel = (IsTrialAccount() and GetRestrictedAccountData or GetMaxPlayerLevel)()
 
 		local rested = experience.Rested
 		if(rested) then
