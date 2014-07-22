@@ -2,7 +2,7 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
-for tag, func in pairs({
+for tag, func in next, {
 	['curxp'] = function(unit)
 		return UnitXP(unit)
 	end,
@@ -21,7 +21,7 @@ for tag, func in pairs({
 			return math.floor(rested / UnitXPMax(unit) * 100 + 0.5)
 		end
 	end,
-}) do
+} do
 	oUF.Tags.Methods[tag] = func
 	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UPDATE_EXHAUSTION'
 end
