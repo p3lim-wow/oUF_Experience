@@ -79,12 +79,12 @@ local function Enable(self, unit)
 			rested:SetFrameLevel(experience:GetFrameLevel() - 1)
 
 			if(not rested:GetStatusBarTexture()) then
-				rested:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
+				rested:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 			end
 		end
 
 		if(not experience:GetStatusBarTexture()) then
-			experience:SetStatusBarTexture([=[Interface\TargetingFrame\UI-StatusBar]=])
+			experience:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 		end
 
 		return true
