@@ -29,27 +29,27 @@ end
 local function Update(self, event, unit)
 	if(self.unit ~= unit) then return end
 
-	local experience = self.Experience
-	if(experience.PreUpdate) then experience:PreUpdate(unit) end
+	local element = self.Experience
+	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	if(UnitLevel(unit) == experience.__max or UnitHasVehicleUI('player')) then
-		experience:Hide()
+	if(UnitLevel(unit) == element.__max or UnitHasVehicleUI('player')) then
+		element:Hide()
 	else
-		experience:Show()
+		element:Show()
 	end
 
 	local min, max = UnitXP(unit), UnitXPMax(unit)
-	experience:SetMinMaxValues(0, max)
-	experience:SetValue(min)
+	element:SetMinMaxValues(0, max)
+	element:SetValue(min)
 
-	if(experience.Rested) then
+	if(element.Rested) then
 		local exhaustion = GetXPExhaustion() or 0
-		experience.Rested:SetMinMaxValues(0, max)
-		experience.Rested:SetValue(math.min(min + exhaustion, max))
+		element.Rested:SetMinMaxValues(0, max)
+		element.Rested:SetValue(math.min(min + exhaustion, max))
 	end
 
-	if(experience.PostUpdate) then
-		return experience:PostUpdate(unit, min, max)
+	if(element.PostUpdate) then
+		return element:PostUpdate(unit, min, max)
 	end
 end
 
@@ -62,28 +62,28 @@ local function ForceUpdate(element)
 end
 
 local function Enable(self, unit)
-	local experience = self.Experience
-	if(experience) then
-		experience.__owner = self
-		experience.__max = (IsTrialAccount() and GetRestrictedAccountData or GetMaxPlayerLevel)()
+	local element = self.Experience
+	if(element) then
+		element.__owner = self
+		element.__max = (IsTrialAccount() and GetRestrictedAccountData or GetMaxPlayerLevel)()
 
-		experience.ForceUpdate = ForceUpdate
+		element.ForceUpdate = ForceUpdate
 
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
 
-		local rested = experience.Rested
-		if(rested) then
+		local child = element.Rested
+		if(child) then
 			self:RegisterEvent('UPDATE_EXHAUSTION', Path)
-			rested:SetFrameLevel(experience:GetFrameLevel() - 1)
+			child:SetFrameLevel(element:GetFrameLevel() - 1)
 
-			if(not rested:GetStatusBarTexture()) then
-				rested:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+			if(not child:GetStatusBarTexture()) then
+				child:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 			end
 		end
 
-		if(not experience:GetStatusBarTexture()) then
-			experience:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+		if(not element:GetStatusBarTexture()) then
+			element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 		end
 
 		return true
@@ -91,12 +91,12 @@ local function Enable(self, unit)
 end
 
 local function Disable(self)
-	local experience = self.Experience
-	if(experience) then
+	local element = self.Experience
+	if(element) then
 		self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
 
-		if(experience.Rested) then
+		if(element.Rested) then
 			self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
 		end
 	end
