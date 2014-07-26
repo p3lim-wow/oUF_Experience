@@ -38,18 +38,20 @@ local function Update(self, event, unit)
 		element:Show()
 	end
 
-	local min, max = UnitXP(unit), UnitXPMax(unit)
+	local cur = UnitXP(unit)
+	local max = UnitXPMax(unit)
+
 	element:SetMinMaxValues(0, max)
-	element:SetValue(min)
+	element:SetValue(cur)
 
 	if(element.Rested) then
 		local exhaustion = GetXPExhaustion() or 0
 		element.Rested:SetMinMaxValues(0, max)
-		element.Rested:SetValue(math.min(min + exhaustion, max))
+		element.Rested:SetValue(math.min(cur + exhaustion, max))
 	end
 
 	if(element.PostUpdate) then
-		return element:PostUpdate(unit, min, max)
+		return element:PostUpdate(unit, cur, max)
 	end
 end
 
