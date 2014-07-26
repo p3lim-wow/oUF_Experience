@@ -65,7 +65,7 @@ end
 
 local function Enable(self, unit)
 	local element = self.Experience
-	if(element) then
+	if(element and unit == 'player') then
 		element.__owner = self
 		element.__max = (IsTrialAccount() and GetRestrictedAccountData or GetMaxPlayerLevel)()
 
