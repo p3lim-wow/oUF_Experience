@@ -1,3 +1,12 @@
+## Changes in 60000.15-Release:
+
+- Added: License
+- Added: Changelog
+- Changed: Update Interface version
+- Changed: Only show on player frame
+- Changed: Internal performance tweaks
+
+
 ## Changes in 50400.14-Release:
 
 - Added: Support for trial account level cap
