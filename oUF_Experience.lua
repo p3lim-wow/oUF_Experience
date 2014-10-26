@@ -32,8 +32,8 @@ local function Update(self, event, unit)
 	local element = self.Experience
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	if(UnitLevel(unit) == element.__max or UnitHasVehicleUI('player')) then
-		element:Hide()
+	if(UnitLevel('player') == element.__max or UnitHasVehicleUI('player')) then
+		return element:Hide()
 	else
 		element:Show()
 	end
@@ -67,12 +67,12 @@ local function Enable(self, unit)
 	local element = self.Experience
 	if(element and unit == 'player') then
 		element.__owner = self
-		element.__max = (IsTrialAccount() and GetRestrictedAccountData or GetMaxPlayerLevel)()
+		element.__max = IsTrialAccount() and (GetRestrictedAccountData()) or MAX_PLAYER_LEVEL
 
 		element.ForceUpdate = ForceUpdate
 
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
-		self:RegisterEvent('PLAYER_LEVEL_UP', Path)
+		self:RegisterEvent('PLAYER_LEVEL_UP', Path, true)
 
 		local child = element.Rested
 		if(child) then
