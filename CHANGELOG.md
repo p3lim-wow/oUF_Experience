@@ -1,3 +1,8 @@
+## Changes in 60000.16-Release:
+
+- Added: Support for users disabling the experience gain
+- Fixed: Element showing when it was not supposed to
+
 ## Changes in 60000.15-Release:
 
 - Added: License
@@ -5,7 +10,6 @@
 - Changed: Update Interface version
 - Changed: Only show on player frame
 - Changed: Internal performance tweaks
-
 
 ## Changes in 50400.14-Release:
 
