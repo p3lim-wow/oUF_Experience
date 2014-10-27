@@ -32,7 +32,7 @@ local function Update(self, event, unit)
 	local element = self.Experience
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	if(UnitLevel('player') == element.__max or UnitHasVehicleUI('player')) then
+	if(IsXPUserDisabled() or UnitLevel('player') == element.__max or UnitHasVehicleUI('player')) then
 		return element:Hide()
 	else
 		element:Show()
@@ -73,6 +73,8 @@ local function Enable(self, unit)
 
 		self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path, true)
+		self:RegisterEvent('DISABLE_XP_GAIN', Path, true)
+		self:RegisterEvent('ENABLE_XP_GAIN', Path, true)
 
 		local child = element.Rested
 		if(child) then
