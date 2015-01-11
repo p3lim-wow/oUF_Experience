@@ -20,7 +20,7 @@ It has the following features:
 	- Player is in a vehicle.
 
 For details on how to implement this in your own layout, please see the wiki:  
-https://github.com/p3lim-wow/oUF_Experience/wiki
+[https://github.com/p3lim-wow/oUF_Experience/wiki](https://github.com/p3lim-wow/oUF_Experience/wiki)
 
 ## Feedback
 
