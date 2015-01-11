@@ -3,3 +3,6 @@ package-as: oUF_Experience
 manual-changelog:
     filename: CHANGELOG.md
     markup-type: markdown
+
+ignore:
+    - CONTRIBUTING.md
