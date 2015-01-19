@@ -1,3 +1,7 @@
+### Changes in 60000.17-Release:
+
+- Added: Support for the new Veteran account type
+
 ### Changes in 60000.16-Release:
 
 - Added: Support for users disabling the experience gain
