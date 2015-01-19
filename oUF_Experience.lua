@@ -67,7 +67,12 @@ local function Enable(self, unit)
 	local element = self.Experience
 	if(element and unit == 'player') then
 		element.__owner = self
-		element.__max = IsTrialAccount() and (GetRestrictedAccountData()) or MAX_PLAYER_LEVEL
+
+		if(IsTrialAccount() or (IsVeteranTrialAccount and IsVeteranTrialAccount())) then
+			element.__max = GetRestrictedAccountData()
+		else
+			element.__max = MAX_PLAYER_LEVEL
+		end
 
 		element.ForceUpdate = ForceUpdate
 
