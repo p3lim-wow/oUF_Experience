@@ -1,3 +1,7 @@
+### Changes in 60100.18-Release:
+
+- Fixed: Element showing for restricted accounts (trial/veteran)
+
 ### Changes in 60000.17-Release:
 
 - Added: Support for the new Veteran account type
