@@ -68,8 +68,9 @@ local function Enable(self, unit)
 	if(element and unit == 'player') then
 		element.__owner = self
 
-		if(IsTrialAccount() or (IsVeteranTrialAccount and IsVeteranTrialAccount())) then
-			element.__max = GetRestrictedAccountData()
+		local levelRestriction = GetRestrictedAccountData()
+		if(levelRestriction > 0) then
+			element.__max = levelRestriction
 		else
 			element.__max = MAX_PLAYER_LEVEL
 		end
