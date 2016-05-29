@@ -10,7 +10,7 @@ It does nothing by itself, and requires a layout that supports it to function.
 
 It has the following features:
 
-- Experience bar.
+- Experience/honor bar.
 - Rested bar (optional).
 - Tags.
 - Automatically hides under certain conditions:
@@ -18,6 +18,7 @@ It has the following features:
 	- Player has locked their experience gain.
 	- Player has reached trial account level cap.
 	- Player is in a vehicle.
+	- Player has disabled honor-tracking.
 
 For details on how to implement this in your own layout, please see the wiki:  
 [https://github.com/p3lim-wow/oUF_Experience/wiki](https://github.com/p3lim-wow/oUF_Experience/wiki)
