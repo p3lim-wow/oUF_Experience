@@ -2,23 +2,28 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
+local isBetaClient = select(4, GetBuildInfo()) >= 70000
+if(not isBetaClient) then
+	IsWatchingHonorAsXP = function() end
+end
+
 for tag, func in next, {
 	['curxp'] = function(unit)
-		return UnitXP(unit)
+		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) (unit)
 	end,
 	['maxxp'] = function(unit)
-		return UnitXPMax(unit)
+		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) (unit)
 	end,
 	['perxp'] = function(unit)
-		return math.floor(UnitXP(unit) / UnitXPMax(unit) * 100 + 0.5)
+		return math.floor(_TAGS.curxp(unit) / _TAGS.maxxp(unit) * 100 + 0.5)
 	end,
 	['currested'] = function()
-		return GetXPExhaustion()
+		return (IsWatchingHonorAsXP() and UnitHonor or GetXPExhaustion) ()
 	end,
 	['perrested'] = function(unit)
-		local rested = GetXPExhaustion()
+		local rested = _TAGS.currested()
 		if(rested and rested > 0) then
-			return math.floor(rested / UnitXPMax(unit) * 100 + 0.5)
+			return math.floor(rested / _TAGS.maxxp(unit) * 100 + 0.5)
 		end
 	end,
 } do
@@ -32,26 +37,39 @@ local function Update(self, event, unit)
 	local element = self.Experience
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	if(IsXPUserDisabled() or UnitLevel('player') == element.__max or UnitHasVehicleUI('player')) then
+	local showHonor
+	local level = UnitLevel('player')
+	if(UnitHasVehicleUI(unit) or IsXPUserDisabled()) then
 		return element:Hide()
+	elseif(level == element.__accountMaxLevel) then
+		if(IsWatchingHonorAsXP() and element.__accountMaxLevel == MAX_PLAYER_LEVEL) then
+			element:Show()
+			showHonor = true
+		else
+			return element:Hide()
+		end
 	else
 		element:Show()
 	end
 
-	local cur = UnitXP(unit)
-	local max = UnitXPMax(unit)
+	local cur = (showHonor and UnitHonor or UnitXP)(unit)
+	local max = (showHonor and UnitHonorMax or UnitXPMax)(unit)
+
+	if(showHonor and UnitHonorLevel(unit) == GetMaxPlayerHonorLevel()) then
+		cur, max = 1, 1
+	end
 
 	element:SetMinMaxValues(0, max)
 	element:SetValue(cur)
 
 	if(element.Rested) then
-		local exhaustion = GetXPExhaustion() or 0
+		local exhaustion = (showHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
 		element.Rested:SetMinMaxValues(0, max)
 		element.Rested:SetValue(math.min(cur + exhaustion, max))
 	end
 
 	if(element.PostUpdate) then
-		return element:PostUpdate(unit, cur, max)
+		return element:PostUpdate(unit, cur, max, exhaustion, showHonor)
 	end
 end
 
@@ -70,9 +88,9 @@ local function Enable(self, unit)
 
 		local levelRestriction = GetRestrictedAccountData()
 		if(levelRestriction > 0) then
-			element.__max = levelRestriction
+			element.__accountMaxLevel = levelRestriction
 		else
-			element.__max = MAX_PLAYER_LEVEL
+			element.__accountMaxLevel = MAX_PLAYER_LEVEL
 		end
 
 		element.ForceUpdate = ForceUpdate
@@ -81,6 +99,16 @@ local function Enable(self, unit)
 		self:RegisterEvent('PLAYER_LEVEL_UP', Path, true)
 		self:RegisterEvent('DISABLE_XP_GAIN', Path, true)
 		self:RegisterEvent('ENABLE_XP_GAIN', Path, true)
+
+		if(isBetaClient) then
+			self:RegisterEvent('HONOR_XP_UPDATE', Path)
+			self:RegisterEvent('HONOR_LEVEL_UPDATE', Path)
+			self:RegisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+
+			hooksecurefunc('SetWatchingHonorAsXP', function()
+				Path(self, 'HONOR_XP_UPDATE', 'player')
+			end)
+		end
 
 		local child = element.Rested
 		if(child) then
@@ -105,6 +133,14 @@ local function Disable(self)
 	if(element) then
 		self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
+
+		if(isBetaClient) then
+			self:UnregisterEvent('HONOR_XP_UPDATE', Path)
+			self:UnregisterEvent('HONOR_LEVEL_UPDATE', Path)
+			self:UnregisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+
+			-- Can't undo secure hooks
+		end
 
 		if(element.Rested) then
 			self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
