@@ -31,6 +31,22 @@ for tag, func in next, {
 	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UPDATE_EXHAUSTION'
 end
 
+local function UpdateColor(element, showHonor)
+	if(showHonor) then
+		element:SetStatusBarColor(1, 1/4, 0)
+
+		if(element.Rested) then
+			element.Rested:SetStatusBarColor(1, 3/4, 0)
+		end
+	else
+		element:SetStatusBarColor(1/6, 2/3, 1/5)
+
+		if(element.Rested) then
+			element.Rested:SetStatusBarColor(0, 2/5, 1)
+		end
+	end
+end
+
 local function Update(self, event, unit)
 	if(self.unit ~= unit) then return end
 
@@ -67,6 +83,8 @@ local function Update(self, event, unit)
 		element.Rested:SetMinMaxValues(0, max)
 		element.Rested:SetValue(math.min(cur + exhaustion, max))
 	end
+
+	(self.OverrideUpdateColor or UpdateColor)(element, showHonor)
 
 	if(element.PostUpdate) then
 		return element:PostUpdate(unit, cur, max, exhaustion, showHonor)
