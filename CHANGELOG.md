@@ -1,3 +1,9 @@
+### Changes in 70000.19-Release:
+
+- Added: Support for Honor levels in Legion
+- Added: Custom colors for Honor
+- Changed: Update Interface version
+
 ### Changes in 60100.18-Release:
 
 - Fixed: Element showing for restricted accounts (trial/veteran)
