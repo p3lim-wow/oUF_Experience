@@ -18,7 +18,7 @@ for tag, func in next, {
 		return math.floor(_TAGS.curxp(unit) / _TAGS.maxxp(unit) * 100 + 0.5)
 	end,
 	['currested'] = function()
-		return (IsWatchingHonorAsXP() and UnitHonor or GetXPExhaustion) ()
+		return (IsWatchingHonorAsXP() and GetHonorExhaustion or GetXPExhaustion) ()
 	end,
 	['perrested'] = function(unit)
 		local rested = _TAGS.currested()
