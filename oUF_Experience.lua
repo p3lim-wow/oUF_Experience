@@ -2,11 +2,6 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
-local isBetaClient = select(4, GetBuildInfo()) >= 70000
-if(not isBetaClient) then
-	IsWatchingHonorAsXP = function() end
-end
-
 for tag, func in next, {
 	['curxp'] = function(unit)
 		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) (unit)
@@ -131,15 +126,13 @@ local function Enable(self, unit)
 		self:RegisterEvent('DISABLE_XP_GAIN', Path, true)
 		self:RegisterEvent('ENABLE_XP_GAIN', Path, true)
 
-		if(isBetaClient) then
-			self:RegisterEvent('HONOR_XP_UPDATE', Path)
-			self:RegisterEvent('HONOR_LEVEL_UPDATE', Path)
-			self:RegisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+		self:RegisterEvent('HONOR_XP_UPDATE', Path)
+		self:RegisterEvent('HONOR_LEVEL_UPDATE', Path)
+		self:RegisterEvent('HONOR_PRESTIGE_UPDATE', Path)
 
-			hooksecurefunc('SetWatchingHonorAsXP', function()
-				Path(self, 'HONOR_XP_UPDATE', 'player')
-			end)
-		end
+		hooksecurefunc('SetWatchingHonorAsXP', function()
+			Path(self, 'HONOR_XP_UPDATE', 'player')
+		end)
 
 		local child = element.Rested
 		if(child) then
@@ -165,13 +158,11 @@ local function Disable(self)
 		self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
 		self:UnregisterEvent('PLAYER_LEVEL_UP', Path)
 
-		if(isBetaClient) then
-			self:UnregisterEvent('HONOR_XP_UPDATE', Path)
-			self:UnregisterEvent('HONOR_LEVEL_UPDATE', Path)
-			self:UnregisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+		self:UnregisterEvent('HONOR_XP_UPDATE', Path)
+		self:UnregisterEvent('HONOR_LEVEL_UPDATE', Path)
+		self:UnregisterEvent('HONOR_PRESTIGE_UPDATE', Path)
 
-			-- Can't undo secure hooks
-		end
+		-- Can't undo secure hooks
 
 		if(element.Rested) then
 			self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
