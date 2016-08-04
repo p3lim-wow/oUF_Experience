@@ -34,12 +34,18 @@ end
 local function UpdateColor(element, showHonor)
 	if(showHonor) then
 		element:SetStatusBarColor(1, 1/4, 0)
+		if(element.SetAnimatedTextureColors) then
+			element:SetAnimatedTextureColors(1, 1/4, 0)
+		end
 
 		if(element.Rested) then
 			element.Rested:SetStatusBarColor(1, 3/4, 0)
 		end
 	else
 		element:SetStatusBarColor(1/6, 2/3, 1/5)
+		if(element.SetAnimatedTextureColors) then
+			element:SetAnimatedTextureColors(1/6, 2/3, 1/5)
+		end
 
 		if(element.Rested) then
 			element.Rested:SetStatusBarColor(0, 2/5, 1)
@@ -61,6 +67,7 @@ local function Update(self, event, unit)
 		if(IsWatchingHonorAsXP() and element.__accountMaxLevel == MAX_PLAYER_LEVEL) then
 			element:Show()
 			showHonor = true
+			level = UnitHonorLevel(unit)
 		else
 			return element:Hide()
 		end
@@ -71,12 +78,16 @@ local function Update(self, event, unit)
 	local cur = (showHonor and UnitHonor or UnitXP)(unit)
 	local max = (showHonor and UnitHonorMax or UnitXPMax)(unit)
 
-	if(showHonor and UnitHonorLevel(unit) == GetMaxPlayerHonorLevel()) then
+	if(showHonor and level == GetMaxPlayerHonorLevel()) then
 		cur, max = 1, 1
 	end
 
-	element:SetMinMaxValues(0, max)
-	element:SetValue(cur)
+	if(element.SetAnimatedValues) then
+		element:SetAnimatedValues(cur, 0, max, level)
+	else
+		element:SetMinMaxValues(0, max)
+		element:SetValue(cur)
+	end
 
 	local exhaustion
 	if(element.Rested) then
