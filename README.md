@@ -1,7 +1,7 @@
 # oUF Experience
 
 This is an addon for the popular MMORPG "World of Warcraft".  
-It can be downloaded at [Curse](http://curse.com/addons/wow/ouf-experience) or at [WoWInterface](http://wowinterface.com/downloads/info10647).
+It can be downloaded at [Curse](//mods.curse.com/addons/wow/ouf-experience) or at [WoWInterface](//wowinterface.com/downloads/info10647).
 
 ## Description
 
@@ -21,7 +21,7 @@ It has the following features:
 	- Player has disabled honor-tracking.
 
 For details on how to implement this in your own layout, please see the wiki:  
-[https://github.com/p3lim-wow/oUF_Experience/wiki](https://github.com/p3lim-wow/oUF_Experience/wiki)
+<https://github.com/p3lim-wow/oUF_Experience/wiki>
 
 ## Feedback
 
@@ -30,4 +30,4 @@ If you would like to report a bug or contribute to the project, please follow [t
 
 ## Legal
 
-Please see the [LICENSE](https://github.com/p3lim-wow/oUF_Experience/blob/master/LICENSE.txt) file.
+Please see the [LICENSE](//github.com/p3lim-wow/oUF_Experience/blob/master/LICENSE.txt) file.
