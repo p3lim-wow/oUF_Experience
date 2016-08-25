@@ -26,6 +26,8 @@ for tag, func in next, {
 	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UPDATE_EXHAUSTION HONOR_XP_UPDATE HONOR_LEVEL_UPDATE HONOR_PRESTIGE_UPDATE'
 end
 
+oUF.Tags.SharedEvents.PLAYER_LEVEL_UP = true
+
 local function UpdateColor(element, showHonor)
 	if(showHonor) then
 		element:SetStatusBarColor(1, 1/4, 0)
