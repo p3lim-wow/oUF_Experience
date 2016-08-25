@@ -94,7 +94,7 @@ local function Update(self, event, unit)
 		element.Rested:SetValue(math.min(cur + exhaustion, max))
 	end
 
-	(self.OverrideUpdateColor or UpdateColor)(element, showHonor)
+	(element.OverrideUpdateColor or UpdateColor)(element, showHonor)
 
 	if(element.PostUpdate) then
 		return element:PostUpdate(unit, cur, max, exhaustion, showHonor)
