@@ -4,10 +4,10 @@ assert(oUF, 'oUF Experience was unable to locate oUF install')
 
 for tag, func in next, {
 	['curxp'] = function(unit)
-		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) (unit)
+		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) ('player')
 	end,
 	['maxxp'] = function(unit)
-		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) (unit)
+		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) ('player')
 	end,
 	['perxp'] = function(unit)
 		return math.floor(_TAGS.curxp(unit) / _TAGS.maxxp(unit) * 100 + 0.5)
