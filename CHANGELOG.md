@@ -1,3 +1,12 @@
+### Changes in 70000.20-Release:
+
+- Added: Support for animated status bars (AnimatedStatusBarTemplate)
+- Removed: Client backwards compatibility
+- Fixed: Tags not updating for honor
+- Fixed: Tags not updating correctly when leveling up
+- Fixed: OverrideUpdateColor called on the wrong frame
+- Fixed: Exhaustion updates for honor on bar and tags
+
 ### Changes in 70000.19-Release:
 
 - Added: Support for Honor levels in Legion
