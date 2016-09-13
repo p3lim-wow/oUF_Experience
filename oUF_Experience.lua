@@ -83,7 +83,7 @@ local function Update(self, event, unit)
 	(element.OverrideUpdateColor or UpdateColor)(element, showHonor)
 
 	if(element.PostUpdate) then
-		return element:PostUpdate(unit, cur, max, exhaustion, showHonor)
+		return element:PostUpdate(unit, cur, max, exhaustion, level, showHonor)
 	end
 end
 
