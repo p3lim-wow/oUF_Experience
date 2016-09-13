@@ -1,3 +1,10 @@
+### Changes in 70000.21-Release:
+
+- Added: Visibility logic override support
+- Changed: Moved the visibility logic to it's own function
+- Changed: Current honor/experience level is passed through PostUpdate
+- Fixed: Bar showing while in a vehicle
+
 ### Changes in 70000.20-Release:
 
 - Added: Support for animated status bars (AnimatedStatusBarTemplate)
