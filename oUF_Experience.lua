@@ -56,7 +56,7 @@ local function Update(self, event, unit)
 	local element = self.Experience
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	local showHonor = IsWatchingHonorAsXP() and UnitLevel('player') == MAX_PLAYER_LEVEL
+	local showHonor = IsWatchingHonorAsXP()
 	local level = (showHonor and UnitHonorLevel or UnitLevel)(unit)
 	local cur = (showHonor and UnitHonor or UnitXP)(unit)
 	local max = (showHonor and UnitHonorMax or UnitXPMax)(unit)
