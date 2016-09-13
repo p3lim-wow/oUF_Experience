@@ -58,7 +58,7 @@ local function Update(self, event, unit)
 
 	local showHonor
 	local level = UnitLevel('player')
-	if(UnitHasVehicleUI(unit) or IsXPUserDisabled()) then
+	if(UnitHasVehicleUI('player') or IsXPUserDisabled()) then
 		return element:Hide()
 	elseif(level == element.__accountMaxLevel) then
 		if(IsWatchingHonorAsXP() and element.__accountMaxLevel == MAX_PLAYER_LEVEL) then
