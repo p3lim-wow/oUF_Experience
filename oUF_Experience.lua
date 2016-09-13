@@ -167,7 +167,7 @@ local function Enable(self, unit)
 		self:RegisterEvent('ENABLE_XP_GAIN', VisibilityPath, true)
 
 		hooksecurefunc('SetWatchingHonorAsXP', function()
-			Path(self, 'HONOR_XP_UPDATE', 'player')
+			VisibilityPath(self, 'SetWatchingHonorAsXP', 'player')
 		end)
 
 		local child = element.Rested
