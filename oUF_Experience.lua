@@ -3,19 +3,19 @@ local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
 for tag, func in next, {
-	['curxp'] = function(unit)
+	['experience:cur'] = function(unit)
 		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) ('player')
 	end,
-	['maxxp'] = function(unit)
+	['experience:max'] = function(unit)
 		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) ('player')
 	end,
-	['perxp'] = function(unit)
+	['experience:per'] = function(unit)
 		return math.floor(_TAGS.curxp(unit) / _TAGS.maxxp(unit) * 100 + 0.5)
 	end,
-	['currested'] = function()
+	['experience:currested'] = function()
 		return (IsWatchingHonorAsXP() and GetHonorExhaustion or GetXPExhaustion) ()
 	end,
-	['perrested'] = function(unit)
+	['experience:perrested'] = function(unit)
 		local rested = _TAGS.currested()
 		if(rested and rested > 0) then
 			return math.floor(rested / _TAGS.maxxp(unit) * 100 + 0.5)
