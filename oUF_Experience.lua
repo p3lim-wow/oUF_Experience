@@ -166,7 +166,9 @@ local function Enable(self, unit)
 		self:RegisterEvent('ENABLE_XP_GAIN', VisibilityPath, true)
 
 		hooksecurefunc('SetWatchingHonorAsXP', function()
-			VisibilityPath(self, 'SetWatchingHonorAsXP', 'player')
+			if(self:IsElementEnabled('Experience')) then
+				VisibilityPath(self, 'SetWatchingHonorAsXP', 'player')
+			end
 		end)
 
 		local child = element.Rested
@@ -193,8 +195,6 @@ local function Disable(self)
 		self:UnregisterEvent('HONOR_LEVEL_UPDATE', VisibilityPath)
 		self:UnregisterEvent('DISABLE_XP_GAIN', VisibilityPath)
 		self:UnregisterEvent('ENABLE_XP_GAIN', VisibilityPath)
-
-		-- Can't undo secure hooks
 
 		ElementDisable(self)
 	end
