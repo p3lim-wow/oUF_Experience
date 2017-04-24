@@ -120,7 +120,6 @@ local function ElementDisable(self)
 end
 
 local function Visibility(self, event, unit)
-
 	local element = self.Experience
 	local shouldEnable
 
