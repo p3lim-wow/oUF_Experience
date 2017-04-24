@@ -10,15 +10,15 @@ for tag, func in next, {
 		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) ('player')
 	end,
 	['experience:per'] = function(unit)
-		return math.floor(_TAGS.curxp(unit) / _TAGS.maxxp(unit) * 100 + 0.5)
+		return math.floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
 		return (IsWatchingHonorAsXP() and GetHonorExhaustion or GetXPExhaustion) ()
 	end,
 	['experience:perrested'] = function(unit)
-		local rested = _TAGS.currested()
+		local rested = _TAGS['experience:currested']()
 		if(rested and rested > 0) then
-			return math.floor(rested / _TAGS.maxxp(unit) * 100 + 0.5)
+			return math.floor(rested / _TAGS['experience:max'](unit) * 100 + 0.5)
 		end
 	end,
 } do
