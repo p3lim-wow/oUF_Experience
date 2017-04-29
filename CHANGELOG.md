@@ -1,3 +1,9 @@
+### Changes in 70200.22-Release:
+
+- Changed: Update Interface version
+- Changed: Tags are now prefixed and some renamed
+- Fixed: Visibility hook not respecting element enabled state
+
 ### Changes in 70000.21-Release:
 
 - Added: Visibility logic override support
