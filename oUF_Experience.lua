@@ -28,6 +28,30 @@ end
 
 oUF.Tags.SharedEvents.PLAYER_LEVEL_UP = true
 
+local function UpdateTooltip(element)
+	local isHonor = IsWatchingHonorAsXP()
+	local cur = (isHonor and UnitHonor or UnitXP)('player')
+	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
+	local per = math.floor(cur / max * 100 + 0.5)
+	local bars = cur / max * (isHonor and 5 or 20)
+
+	local rested = (isHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
+	rested = math.floor(rested / max * 100 + 0.5)
+
+	GameTooltip:SetText(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), per), 1, 1, 1)
+	GameTooltip:AddLine(format('%.1f bars, %d rested', bars, rested))
+	GameTooltip:Show()
+end
+
+local function OnEnter(element)
+	GameTooltip:SetOwner(element, element.tooltipAnchor)
+	element:UpdateTooltip()
+end
+
+local function OnLeave(element)
+	GameTooltip:Hide()
+end
+
 local function UpdateColor(element, showHonor)
 	if(showHonor) then
 		element:SetStatusBarColor(1, 1/4, 0)
@@ -182,6 +206,19 @@ local function Enable(self, unit)
 
 		if(not element:GetStatusBarTexture()) then
 			element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+		end
+
+		if(element:IsMouseEnabled()) then
+			element.UpdateTooltip = element.UpdateTooltip or UpdateTooltip
+			element.tooltipAnchor = element.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
+
+			if(not element:GetScript('OnEnter')) then
+				element:SetScript('OnEnter', OnEnter)
+			end
+
+			if(not element:GetScript('OnLeave')) then
+				element:SetScript('OnLeave', OnLeave)
+			end
 		end
 
 		return true
