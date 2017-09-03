@@ -44,12 +44,14 @@ local function UpdateTooltip(element)
 end
 
 local function OnEnter(element)
+	element:SetAlpha(element.inAlpha)
 	GameTooltip:SetOwner(element, element.tooltipAnchor)
 	element:UpdateTooltip()
 end
 
 local function OnLeave(element)
 	GameTooltip:Hide()
+	element:SetAlpha(element.outAlpha)
 end
 
 local function UpdateColor(element, showHonor)
@@ -116,15 +118,17 @@ local function Path(self, ...)
 end
 
 local function ElementEnable(self)
+	local element = self.Experience
 	self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 	self:RegisterEvent('HONOR_LEVEL_UPDATE', Path)
 	self:RegisterEvent('HONOR_PRESTIGE_UPDATE', Path)
 
-	if(self.Experience.Rested) then
+	if(element.Rested) then
 		self:RegisterEvent('UPDATE_EXHAUSTION', Path)
 	end
 
-	self.Experience:Show()
+	element:Show()
+	element:SetAlpha(element.outAlpha or 1)
 
 	Path(self, 'ElementEnable', 'player')
 end
@@ -211,6 +215,8 @@ local function Enable(self, unit)
 		if(element:IsMouseEnabled()) then
 			element.UpdateTooltip = element.UpdateTooltip or UpdateTooltip
 			element.tooltipAnchor = element.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
+			element.inAlpha = element.inAlpha or 1
+			element.outAlpha = element.outAlpha or 1
 
 			if(not element:GetScript('OnEnter')) then
 				element:SetScript('OnEnter', OnEnter)
