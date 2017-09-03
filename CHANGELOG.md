@@ -1,3 +1,9 @@
+### Changes in 70300.23-Release:
+
+- Changed: Update Interface version
+- Added: Tooltip support
+- Added: Fade support
+
 ### Changes in 70200.22-Release:
 
 - Changed: Update Interface version
