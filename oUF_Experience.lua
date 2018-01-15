@@ -48,7 +48,7 @@ local function UpdateTooltip(element)
 	local cur, max, perc, bars, _, restedPerc = GetValues()
 
 	GameTooltip:SetText(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
-	GameTooltip:AddLine(format('%.1f bars, %d rested', bars, restedPerc))
+	GameTooltip:AddLine(format('%.1f bars, %d%% rested', bars, restedPerc))
 	GameTooltip:Show()
 end
 
