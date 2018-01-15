@@ -33,19 +33,17 @@ local function GetValues()
 	local cur = (isHonor and UnitHonor or UnitXP)('player')
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
 	local perc = floor(cur / max * 100 + 0.5)
-	local bars = cur / max * (isHonor and 5 or 20)
 
 	local rested = (isHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
 	local restedPerc = floor(rested / max * 100 + 0.5)
-	local barsRested = rested / max * (isHonor and 5 or 20)
 
 	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
 
-	return cur, max, perc, bars, rested, restedPerc, barsRested, level, isHonor
+	return cur, max, perc, rested, restedPerc, level, isHonor
 end
 
 local function UpdateTooltip(element)
-	local cur, max, perc, _, rested, restedPerc, _, _, isHonor = GetValues()
+	local cur, max, perc, rested, restedPerc, _, isHonor = GetValues()
 
 	GameTooltip:SetText(isHonor and HONOR or COMBAT_XP_GAIN)
 	GameTooltip:AddLine(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
@@ -92,7 +90,7 @@ local function Update(self, event, unit)
 	local element = self.Experience
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	local cur, max, perc, bars, rested, restedPerc, barsRested, level, isHonor = GetValues()
+	local cur, max, _, rested, _, level, isHonor = GetValues()
 
 	if(isHonor and level == GetMaxPlayerHonorLevel()) then
 		cur, max = 1, 1
