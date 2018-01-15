@@ -45,10 +45,11 @@ local function GetValues()
 end
 
 local function UpdateTooltip(element)
-	local cur, max, perc, bars, _, restedPerc = GetValues()
+	local cur, max, perc, _, rested, restedPerc, _, _, isHonor = GetValues()
 
-	GameTooltip:SetText(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
-	GameTooltip:AddLine(format('%.1f bars, %d%% rested', bars, restedPerc))
+	GameTooltip:SetText(isHonor and HONOR or COMBAT_XP_GAIN)
+	GameTooltip:AddLine(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
+	GameTooltip:AddLine(format('%s: %s (%d%%)', TUTORIAL_TITLE26, BreakUpLargeNumbers(rested), restedPerc), 1, 1, 1)
 	GameTooltip:Show()
 end
 
