@@ -28,18 +28,27 @@ end
 
 oUF.Tags.SharedEvents.PLAYER_LEVEL_UP = true
 
-local function UpdateTooltip(element)
+local function GetValues()
 	local isHonor = IsWatchingHonorAsXP()
 	local cur = (isHonor and UnitHonor or UnitXP)('player')
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
-	local per = math.floor(cur / max * 100 + 0.5)
+	local perc = floor(cur / max * 100 + 0.5)
 	local bars = cur / max * (isHonor and 5 or 20)
 
 	local rested = (isHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
-	rested = math.floor(rested / max * 100 + 0.5)
+	local restedPerc = floor(rested / max * 100 + 0.5)
+	local barsRested = rested / max * (isHonor and 5 or 20)
 
-	GameTooltip:SetText(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), per), 1, 1, 1)
-	GameTooltip:AddLine(format('%.1f bars, %d rested', bars, rested))
+	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
+
+	return cur, max, perc, bars, rested, restedPerc, barsRested, level, isHonor
+end
+
+local function UpdateTooltip(element)
+	local cur, max, perc, bars, _, restedPerc = GetValues()
+
+	GameTooltip:SetText(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
+	GameTooltip:AddLine(format('%.1f bars, %d rested', bars, restedPerc))
 	GameTooltip:Show()
 end
 
@@ -82,12 +91,9 @@ local function Update(self, event, unit)
 	local element = self.Experience
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
-	local showHonor = IsWatchingHonorAsXP()
-	local level = (showHonor and UnitHonorLevel or UnitLevel)(unit)
-	local cur = (showHonor and UnitHonor or UnitXP)(unit)
-	local max = (showHonor and UnitHonorMax or UnitXPMax)(unit)
+	local cur, max, perc, bars, rested, restedPerc, barsRested, level, isHonor = GetValues()
 
-	if(showHonor and level == GetMaxPlayerHonorLevel()) then
+	if(isHonor and level == GetMaxPlayerHonorLevel()) then
 		cur, max = 1, 1
 	end
 
@@ -98,18 +104,15 @@ local function Update(self, event, unit)
 		element:SetValue(cur)
 	end
 
-	local exhaustion
 	if(element.Rested) then
-		exhaustion = (showHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
-
 		element.Rested:SetMinMaxValues(0, max)
-		element.Rested:SetValue(math.min(cur + exhaustion, max))
+		element.Rested:SetValue(math.min(cur + rested, max))
 	end
 
-	(element.OverrideUpdateColor or UpdateColor)(element, showHonor)
+	(element.OverrideUpdateColor or UpdateColor)(element, isHonor)
 
 	if(element.PostUpdate) then
-		return element:PostUpdate(unit, cur, max, exhaustion, level, showHonor)
+		return element:PostUpdate(unit, cur, max, rested, level, isHonor)
 	end
 end
 
