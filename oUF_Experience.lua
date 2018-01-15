@@ -66,26 +66,27 @@ local function OnLeave(element)
 	element:SetAlpha(element.outAlpha)
 end
 
-local function UpdateColor(element, showHonor, isRested)
-	if(showHonor) then
-		element:SetStatusBarColor(1, 1/4, 0)
-		if(element.SetAnimatedTextureColors) then
-			element:SetAnimatedTextureColors(1, 1/4, 0)
-		end
-
-		if(element.Rested) then
-			element.Rested:SetStatusBarColor(1, 3/4, 0)
+local function UpdateColor(element, isHonor, isRested)
+	local r, g, b
+	if (isHonor) then
+		if (isRested) then
+			r, g, b = 1, 0.71, 0
+		else
+			r, g, b = 1, 0.24, 0
 		end
 	else
-		element:SetStatusBarColor(1/6, 2/3, 1/5)
-		if(element.SetAnimatedTextureColors) then
-			element:SetAnimatedTextureColors(1/6, 2/3, 1/5)
-		end
-
-		if(element.Rested) then
-			element.Rested:SetStatusBarColor(0, 2/5, 1)
+		if (isRested) then
+			r, g, b = 0, 0.39, 0.88
+		else
+			r, g, b = 0.58, 0, 0.55
 		end
 	end
+
+	element:SetStatusBarColor(r, g, b)
+	if(element.SetAnimatedTextureColors) then
+		element:SetAnimatedTextureColors(r, g, b)
+	end
+	element.Rested:SetStatusBarColor(r, g, b, 0.25)
 end
 
 local function Update(self, event, unit)
