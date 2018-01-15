@@ -86,7 +86,7 @@ local function UpdateColor(element, isHonor, isRested)
 	if(element.SetAnimatedTextureColors) then
 		element:SetAnimatedTextureColors(r, g, b)
 	end
-	element.Rested:SetStatusBarColor(r, g, b, 0.25)
+	element.Rested:SetStatusBarColor(r, g, b, element.restedAlpha)
 end
 
 local function Update(self, event, unit)
@@ -194,6 +194,7 @@ local function Enable(self, unit)
 		end
 
 		element.ForceUpdate = ForceUpdate
+		element.restedAlpha = element.restedAlpha or 0.15
 
 		self:RegisterEvent('PLAYER_LEVEL_UP', VisibilityPath, true)
 		self:RegisterEvent('HONOR_LEVEL_UPDATE', VisibilityPath)
