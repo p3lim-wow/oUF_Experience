@@ -47,7 +47,11 @@ local function UpdateTooltip(element)
 
 	GameTooltip:SetText(isHonor and HONOR or COMBAT_XP_GAIN)
 	GameTooltip:AddLine(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
-	GameTooltip:AddLine(format('%s: %s (%d%%)', TUTORIAL_TITLE26, BreakUpLargeNumbers(rested), restedPerc), 1, 1, 1)
+
+	if(rested > 0) then
+		GameTooltip:AddLine(format('%s: %s (%d%%)', TUTORIAL_TITLE26, BreakUpLargeNumbers(rested), restedPerc), 1, 1, 1)
+	end
+
 	GameTooltip:Show()
 end
 
