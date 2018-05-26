@@ -13,7 +13,13 @@ for tag, func in next, {
 		return math.floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
-		return (IsWatchingHonorAsXP() and GetHonorExhaustion or GetXPExhaustion) ()
+		local rested
+		if (IsWatchingHonorAsXP()) then
+			rested = GetHonorExhaustion and GetHonorExhaustion()
+		else
+			rested = GetXPExhaustion()
+		end
+		return rested
 	end,
 	['experience:perrested'] = function(unit)
 		local rested = _TAGS['experience:currested']()
@@ -23,10 +29,8 @@ for tag, func in next, {
 	end,
 } do
 	oUF.Tags.Methods[tag] = func
-	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UPDATE_EXHAUSTION HONOR_XP_UPDATE HONOR_LEVEL_UPDATE HONOR_PRESTIGE_UPDATE'
+	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE UPDATE_EXHAUSTION HONOR_XP_UPDATE'
 end
-
-oUF.Tags.SharedEvents.PLAYER_LEVEL_UP = true
 
 local function GetValues()
 	local isHonor = IsWatchingHonorAsXP()
@@ -34,7 +38,12 @@ local function GetValues()
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
 	local perc = floor(cur / max * 100 + 0.5)
 
-	local rested = (isHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
+	local rested
+	if (isHonor) then
+		rested = GetHonorExhaustion and GetHonorExhaustion() or 0
+	else
+		rested = GetXPExhaustion() or 0
+	end
 	local restedPerc = floor(rested / max * 100 + 0.5)
 
 	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
@@ -97,7 +106,7 @@ local function Update(self, event, unit)
 
 	local cur, max, _, rested, _, level, isHonor = GetValues()
 
-	if(isHonor and level == GetMaxPlayerHonorLevel()) then
+	if(isHonor and GetMaxPlayerHonorLevel and level == GetMaxPlayerHonorLevel()) then
 		cur, max = 1, 1
 	end
 
@@ -127,8 +136,7 @@ end
 local function ElementEnable(self)
 	local element = self.Experience
 	self:RegisterEvent('PLAYER_XP_UPDATE', Path)
-	self:RegisterEvent('HONOR_LEVEL_UPDATE', Path)
-	self:RegisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+	self:RegisterEvent('HONOR_XP_UPDATE', Path)
 
 	if(element.Rested) then
 		self:RegisterEvent('UPDATE_EXHAUSTION', Path)
@@ -142,8 +150,7 @@ end
 
 local function ElementDisable(self)
 	self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
-	self:UnregisterEvent('HONOR_LEVEL_UPDATE', Path)
-	self:UnregisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+	self:UnregisterEvent('HONOR_XP_UPDATE', Path)
 
 	if(self.Experience.Rested) then
 		self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
