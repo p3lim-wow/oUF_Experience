@@ -13,7 +13,13 @@ for tag, func in next, {
 		return math.floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
-		return (IsWatchingHonorAsXP() and GetHonorExhaustion or GetXPExhaustion) ()
+		local rested
+		if (IsWatchingHonorAsXP()) then
+			rested = GetHonorExhaustion and GetHonorExhaustion()
+		else
+			rested = GetXPExhaustion()
+		end
+		return rested
 	end,
 	['experience:perrested'] = function(unit)
 		local rested = _TAGS['experience:currested']()
@@ -23,7 +29,7 @@ for tag, func in next, {
 	end,
 } do
 	oUF.Tags.Methods[tag] = func
-	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE PLAYER_LEVEL_UP UPDATE_EXHAUSTION HONOR_XP_UPDATE HONOR_LEVEL_UPDATE HONOR_PRESTIGE_UPDATE'
+	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE UPDATE_EXHAUSTION HONOR_XP_UPDATE'
 end
 
 oUF.Tags.SharedEvents.PLAYER_LEVEL_UP = true
@@ -35,11 +41,18 @@ local function UpdateTooltip(element)
 	local per = math.floor(cur / max * 100 + 0.5)
 	local bars = cur / max * (isHonor and 5 or 20)
 
-	local rested = (isHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
+	local rested
+	if (isHonor) then
+		rested = GetHonorExhaustion and GetHonorExhaustion() or 0
+	else
+		rested = GetXPExhaustion() or 0
+	end
 	rested = math.floor(rested / max * 100 + 0.5)
 
 	GameTooltip:SetText(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), per), 1, 1, 1)
-	GameTooltip:AddLine(format('%.1f bars, %d rested', bars, rested))
+	if (rested > 0) then
+		GameTooltip:AddLine(format('%.1f bars, %d rested', bars, rested))
+	end
 	GameTooltip:Show()
 end
 
@@ -61,7 +74,7 @@ local function UpdateColor(element, showHonor)
 			element:SetAnimatedTextureColors(1, 1/4, 0)
 		end
 
-		if(element.Rested) then
+		if(element.Rested and GetHonorExhaustion) then
 			element.Rested:SetStatusBarColor(1, 3/4, 0)
 		end
 	else
@@ -87,7 +100,7 @@ local function Update(self, event, unit)
 	local cur = (showHonor and UnitHonor or UnitXP)(unit)
 	local max = (showHonor and UnitHonorMax or UnitXPMax)(unit)
 
-	if(showHonor and level == GetMaxPlayerHonorLevel()) then
+	if(showHonor and GetMaxPlayerHonorLevel and level == GetMaxPlayerHonorLevel()) then
 		cur, max = 1, 1
 	end
 
@@ -100,8 +113,11 @@ local function Update(self, event, unit)
 
 	local exhaustion
 	if(element.Rested) then
-		exhaustion = (showHonor and GetHonorExhaustion or GetXPExhaustion)() or 0
-
+		if (showHonor) then
+			exhaustion = GetHonorExhaustion and GetHonorExhaustion() or 0
+		else
+			exhaustion = GetXPExhaustion() or 0
+		end
 		element.Rested:SetMinMaxValues(0, max)
 		element.Rested:SetValue(math.min(cur + exhaustion, max))
 	end
@@ -120,8 +136,7 @@ end
 local function ElementEnable(self)
 	local element = self.Experience
 	self:RegisterEvent('PLAYER_XP_UPDATE', Path)
-	self:RegisterEvent('HONOR_LEVEL_UPDATE', Path)
-	self:RegisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+	self:RegisterEvent('HONOR_XP_UPDATE', Path)
 
 	if(element.Rested) then
 		self:RegisterEvent('UPDATE_EXHAUSTION', Path)
@@ -135,8 +150,7 @@ end
 
 local function ElementDisable(self)
 	self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
-	self:UnregisterEvent('HONOR_LEVEL_UPDATE', Path)
-	self:UnregisterEvent('HONOR_PRESTIGE_UPDATE', Path)
+	self:UnregisterEvent('HONOR_XP_UPDATE', Path)
 
 	if(self.Experience.Rested) then
 		self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
