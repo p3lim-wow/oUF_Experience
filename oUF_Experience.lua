@@ -2,6 +2,12 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
+local HONOR = HONOR or 'Honor'
+local EXPERIENCE = COMBAT_XP_GAIN or 'Experience'
+local RESTED = TUTORIAL_TITLE26 or 'Rested'
+
+local math_floor = math.floor
+
 for tag, func in next, {
 	['experience:cur'] = function(unit)
 		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) ('player')
@@ -10,11 +16,11 @@ for tag, func in next, {
 		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) ('player')
 	end,
 	['experience:per'] = function(unit)
-		return math.floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
+		return math_floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
 		local rested
-		if (IsWatchingHonorAsXP()) then
+		if(IsWatchingHonorAsXP()) then
 			rested = GetHonorExhaustion and GetHonorExhaustion()
 		else
 			rested = GetXPExhaustion()
@@ -24,7 +30,7 @@ for tag, func in next, {
 	['experience:perrested'] = function(unit)
 		local rested = _TAGS['experience:currested']()
 		if(rested and rested > 0) then
-			return math.floor(rested / _TAGS['experience:max'](unit) * 100 + 0.5)
+			return math_floor(rested / _TAGS['experience:max'](unit) * 100 + 0.5)
 		end
 	end,
 } do
@@ -36,17 +42,17 @@ local function GetValues()
 	local isHonor = IsWatchingHonorAsXP()
 	local cur = (isHonor and UnitHonor or UnitXP)('player')
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
-	local perc = floor(cur / max * 100 + 0.5)
+	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
 
 	local rested
-	if (isHonor) then
+	if(isHonor) then
 		rested = GetHonorExhaustion and GetHonorExhaustion() or 0
 	else
 		rested = GetXPExhaustion() or 0
 	end
-	local restedPerc = floor(rested / max * 100 + 0.5)
 
-	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
+	local perc = math_floor(cur / max * 100 + 0.5)
+	local restedPerc = math_floor(rested / max * 100 + 0.5)
 
 	return cur, max, perc, rested, restedPerc, level, isHonor
 end
@@ -54,11 +60,11 @@ end
 local function UpdateTooltip(element)
 	local cur, max, perc, rested, restedPerc, _, isHonor = GetValues()
 
-	GameTooltip:SetText(isHonor and HONOR or COMBAT_XP_GAIN)
+	GameTooltip:SetText(isHonor and HONOR or EXPERIENCE)
 	GameTooltip:AddLine(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
 
 	if(rested > 0) then
-		GameTooltip:AddLine(format('%s: %s (%d%%)', TUTORIAL_TITLE26, BreakUpLargeNumbers(rested), restedPerc), 1, 1, 1)
+		GameTooltip:AddLine(format('%s: %s (%d%%)', RESTED, BreakUpLargeNumbers(rested), restedPerc), 1, 1, 1)
 	end
 
 	GameTooltip:Show()
@@ -77,14 +83,14 @@ end
 
 local function UpdateColor(element, isHonor, isRested)
 	local r, g, b
-	if (isHonor) then
-		if (isRested) then
+	if(isHonor) then
+		if(isRested) then
 			r, g, b = 1, 0.71, 0
 		else
 			r, g, b = 1, 0.24, 0
 		end
 	else
-		if (isRested) then
+		if(isRested) then
 			r, g, b = 0, 0.39, 0.88
 		else
 			r, g, b = 0.58, 0, 0.55
@@ -105,7 +111,6 @@ local function Update(self, event, unit)
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
 	local cur, max, _, rested, _, level, isHonor = GetValues()
-
 	if(isHonor and GetMaxPlayerHonorLevel and level == GetMaxPlayerHonorLevel()) then
 		cur, max = 1, 1
 	end
