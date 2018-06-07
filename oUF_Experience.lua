@@ -8,6 +8,16 @@ local RESTED = TUTORIAL_TITLE26 or 'Rested'
 
 local math_floor = math.floor
 
+oUF.colors.experience = {
+	{0.58, 0, 0.55}, -- Normal
+	{0, 0.39, 0.88}, -- Rested
+}
+
+oUF.colors.honor = {
+	{1, 0.71, 0}, -- Normal
+	{1, 0.71, 0}, -- Rested
+}
+
 for tag, func in next, {
 	['experience:cur'] = function(unit)
 		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) ('player')
@@ -82,26 +92,22 @@ local function OnLeave(element)
 end
 
 local function UpdateColor(element, isHonor, isRested)
-	local r, g, b
+	local colors = element.__owner.colors
 	if(isHonor) then
-		if(isRested) then
-			r, g, b = 1, 0.71, 0
-		else
-			r, g, b = 1, 0.24, 0
-		end
+		colors = colors.honor
 	else
-		if(isRested) then
-			r, g, b = 0, 0.39, 0.88
-		else
-			r, g, b = 0.58, 0, 0.55
-		end
+		colors = colors.experience
 	end
 
+	local r, g, b = unpack(colors[isRested and 2 or 1])
 	element:SetStatusBarColor(r, g, b)
 	if(element.SetAnimatedTextureColors) then
 		element:SetAnimatedTextureColors(r, g, b)
 	end
-	element.Rested:SetStatusBarColor(r, g, b, element.restedAlpha)
+
+	if(element.Rested) then
+		element.Rested:SetStatusBarColor(r, g, b, element.restedAlpha)
+	end
 end
 
 local function Update(self, event, unit)
