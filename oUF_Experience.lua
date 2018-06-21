@@ -18,24 +18,27 @@ oUF.colors.honor = {
 	{1, 0.71, 0}, -- Rested
 }
 
+local function WatchingHonor()
+	return UnitLevel('player') >= MAX_PLAYER_LEVEL and
+		(IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
+end
+
 for tag, func in next, {
 	['experience:cur'] = function(unit)
-		return (IsWatchingHonorAsXP() and UnitHonor or UnitXP) ('player')
+		return (WatchingHonor() and UnitHonor or UnitXP) ('player')
 	end,
 	['experience:max'] = function(unit)
-		return (IsWatchingHonorAsXP() and UnitHonorMax or UnitXPMax) ('player')
+		return (WatchingHonor() and UnitHonorMax or UnitXPMax) ('player')
 	end,
 	['experience:per'] = function(unit)
 		return math_floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
-		local rested
-		if(IsWatchingHonorAsXP()) then
-			rested = GetHonorExhaustion and GetHonorExhaustion()
+		if(not WatchingHonor()) then
+			return GetXPExhaustion()
 		else
-			rested = GetXPExhaustion()
+			return GetHonorExhaustion and GetHonorExhaustion()
 		end
-		return rested
 	end,
 	['experience:perrested'] = function(unit)
 		local rested = _TAGS['experience:currested']()
@@ -45,20 +48,20 @@ for tag, func in next, {
 	end,
 } do
 	oUF.Tags.Methods[tag] = func
-	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE UPDATE_EXHAUSTION HONOR_XP_UPDATE'
+	oUF.Tags.Events[tag] = 'PLAYER_XP_UPDATE UPDATE_EXHAUSTION HONOR_XP_UPDATE ZONE_CHANGED ZONE_CHANGED_NEW_AREA'
 end
 
 local function GetValues()
-	local isHonor = IsWatchingHonorAsXP()
+	local isHonor = WatchingHonor()
 	local cur = (isHonor and UnitHonor or UnitXP)('player')
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
 	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
 
 	local rested
-	if(isHonor) then
-		rested = GetHonorExhaustion and GetHonorExhaustion() or 0
-	else
+	if(not isHonor) then
 		rested = GetXPExhaustion() or 0
+	else
+		rested = GetHonorExhaustion and GetHonorExhaustion() or 0
 	end
 
 	local perc = math_floor(cur / max * 100 + 0.5)
@@ -148,6 +151,8 @@ local function ElementEnable(self)
 	local element = self.Experience
 	self:RegisterEvent('PLAYER_XP_UPDATE', Path)
 	self:RegisterEvent('HONOR_XP_UPDATE', Path)
+	self:RegisterEvent('ZONE_CHANGED', Path)
+	self:RegisterEvent('ZONE_CHANGED_NEW_AREA', Path)
 
 	if(element.Rested) then
 		self:RegisterEvent('UPDATE_EXHAUSTION', Path)
@@ -162,6 +167,8 @@ end
 local function ElementDisable(self)
 	self:UnregisterEvent('PLAYER_XP_UPDATE', Path)
 	self:UnregisterEvent('HONOR_XP_UPDATE', Path)
+	self:UnregisterEvent('ZONE_CHANGED', Path)
+	self:UnregisterEvent('ZONE_CHANGED_NEW_AREA', Path)
 
 	if(self.Experience.Rested) then
 		self:UnregisterEvent('UPDATE_EXHAUSTION', Path)
@@ -179,7 +186,7 @@ local function Visibility(self, event, unit)
 	if(not UnitHasVehicleUI('player') and not IsXPUserDisabled()) then
 		if(UnitLevel('player') ~= element.__accountMaxLevel) then
 			shouldEnable = true
-		elseif(IsWatchingHonorAsXP() and element.__accountMaxLevel == MAX_PLAYER_LEVEL) then
+		elseif(WatchingHonor()) then
 			shouldEnable = true
 		end
 	end
