@@ -1,3 +1,10 @@
+### Changes in 80000.24-Release:
+
+- Changed: Update Interface version
+- Changed: Improved tooltip
+- Changed: Mimicing the stock UI bar colors (can be overridden)
+- Fixed: Honor tracking in Battle for Azeroth
+
 ### Changes in 70300.23-Release:
 
 - Changed: Update Interface version
