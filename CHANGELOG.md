@@ -1,3 +1,7 @@
+### Changes in 80000.25-Release:
+
+- Fixed: Errors when mouse is disabled
+
 ### Changes in 80000.24-Release:
 
 - Changed: Update Interface version
