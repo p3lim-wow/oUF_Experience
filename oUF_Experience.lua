@@ -3,6 +3,7 @@ local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
 local HONOR = HONOR or 'Honor'
+local HONOR_LEVEL_LABEL = HONOR_LEVEL_LABEL or 'Honor Level %d'
 local EXPERIENCE = COMBAT_XP_GAIN or 'Experience'
 local RESTED = TUTORIAL_TITLE26 or 'Rested'
 
@@ -73,9 +74,9 @@ local function GetValues()
 end
 
 local function UpdateTooltip(element)
-	local cur, max, perc, rested, restedPerc, _, isHonor = GetValues()
+	local cur, max, perc, rested, restedPerc, level, isHonor = GetValues()
 
-	GameTooltip:SetText(isHonor and HONOR or EXPERIENCE)
+	GameTooltip:SetText(isHonor and HONOR_LEVEL_LABEL:format(level) or EXPERIENCE)
 	GameTooltip:AddLine(format('%s / %s (%d%%)', BreakUpLargeNumbers(cur), BreakUpLargeNumbers(max), perc), 1, 1, 1)
 
 	if(rested > 0) then
