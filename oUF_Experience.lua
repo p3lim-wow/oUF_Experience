@@ -115,7 +115,7 @@ A few basic tags are included:
 - `[experience:currested]` - the player's current exhaustion
 - `[experience:perrested]` - the player's percentage of exhaustion
 
-See the [Examples](../#example-implementation) section on how to use the tags.
+See the [Examples](./#example-implementation) section on how to use the tags.
 --]]
 for tag, func in next, {
 	['experience:cur'] = function(unit)
@@ -216,6 +216,7 @@ local function Update(self, event, unit)
 
 		Called before the element has been updated.
 
+		- `self` - the Experience element
 		- `unit` - the unit for which the update has been triggered _(string)_
 		--]]
 		element:PreUpdate(unit)
