@@ -178,6 +178,8 @@ local function OnEnter(element)
 	### element:OverrideUpdateTooltip()
 
 	Used to completely override the internal function for updating the tooltip.
+
+	- `self` - the Experience element
 	--]]
 	if(element.OverrideUpdateTooltip) then
 		element:OverrideUpdateTooltip()
@@ -246,6 +248,7 @@ local function Update(self, event, unit)
 
 	Used to completely override the internal function for updating the widget's colors.
 
+	- `self`     - the Experience element
 	- `isHonor`  - indicates if the player is currently tracking honor or not _(boolean)_
 	- `isRested` - indicates if the player has any exhaustion _(boolean)_
 	--]]
