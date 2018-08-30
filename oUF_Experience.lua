@@ -27,6 +27,10 @@ local function IsPlayerMaxLevel()
 	return maxLevel == UnitLevel('player')
 end
 
+local function IsPlayerMaxHonorLevel()
+	return not C_PvP.GetNextHonorLevelForReward(UnitHonorLevel('player'))
+end
+
 local function ShouldShowHonor()
 	return IsPlayerMaxLevel() and (IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
 end
@@ -180,7 +184,7 @@ local function Visibility(self, event, unit)
 	if(not UnitHasVehicleUI('player')) then
 		if(not IsPlayerMaxLevel() and not IsXPUserDisabled()) then
 			shouldEnable = true
-		elseif(ShouldShowHonor()) then
+		elseif(ShouldShowHonor() and not IsPlayerMaxHonorLevel()) then
 			shouldEnable = true
 		end
 	end
