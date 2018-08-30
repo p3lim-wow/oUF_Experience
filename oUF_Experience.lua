@@ -238,7 +238,7 @@ local function Enable(self, unit)
 		end
 
 		if(element:IsMouseEnabled()) then
-			element.UpdateTooltip = element.UpdateTooltip or UpdateTooltip
+			element.UpdateTooltip = element.OverrideUpdateTooltip or element.UpdateTooltip or UpdateTooltip -- DEPRECATED: element.UpdateTooltip
 			element.tooltipAnchor = element.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 			element.inAlpha = element.inAlpha or 1
 			element.outAlpha = element.outAlpha or 1
