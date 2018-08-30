@@ -271,7 +271,7 @@ end
 
 local function Path(self, ...)
 	--[[ Overrides:header
-	### element:Override(_self, event, unit_)
+	### element.Override(_self, event, unit_)
 
 	Used to completely override the internal update function.  
 	Overriding this function also disables the [Callbacks](Callbacks).
