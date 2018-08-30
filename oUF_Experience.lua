@@ -413,6 +413,7 @@ local function Disable(self)
 		self:UnregisterEvent('HONOR_LEVEL_UPDATE', VisibilityPath)
 		self:UnregisterEvent('DISABLE_XP_GAIN', VisibilityPath)
 		self:UnregisterEvent('ENABLE_XP_GAIN', VisibilityPath)
+		self:UnregisterEvent('UPDATE_EXPANSION_LEVEL', VisibilityPath)
 
 		ElementDisable(self)
 	end
