@@ -45,6 +45,9 @@ for tag, func in next, {
 	['experience:per'] = function(unit)
 		return math_floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
+	['experience:level'] = function(unit)
+		return (ShouldShowHonor() and UnitHonorLevel or UnitLevel)('player')
+	end,
 	['experience:currested'] = function()
 		return not ShouldShowHonor() and GetXPExhaustion()
 	end,
