@@ -33,20 +33,16 @@ end
 
 for tag, func in next, {
 	['experience:cur'] = function(unit)
-		return (ShouldShowHonor() and UnitHonor or UnitXP) ('player')
+		return (ShouldShowHonor() and UnitHonor or UnitXP)('player')
 	end,
 	['experience:max'] = function(unit)
-		return (ShouldShowHonor() and UnitHonorMax or UnitXPMax) ('player')
+		return (ShouldShowHonor() and UnitHonorMax or UnitXPMax)('player')
 	end,
 	['experience:per'] = function(unit)
 		return math_floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
-		if(not ShouldShowHonor()) then
-			return GetXPExhaustion()
-		else
-			return GetHonorExhaustion and GetHonorExhaustion()
-		end
+		return not ShouldShowHonor() and GetXPExhaustion()
 	end,
 	['experience:perrested'] = function(unit)
 		local rested = _TAGS['experience:currested']()
@@ -64,13 +60,7 @@ local function GetValues()
 	local cur = (isHonor and UnitHonor or UnitXP)('player')
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
 	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
-
-	local rested
-	if(not isHonor) then
-		rested = GetXPExhaustion() or 0
-	else
-		rested = GetHonorExhaustion and GetHonorExhaustion() or 0
-	end
+	local rested = not isHonor and (GetXPExhaustion() or 0) or 0
 
 	local perc = math_floor(cur / max * 100 + 0.5)
 	local restedPerc = math_floor(rested / max * 100 + 0.5)
@@ -128,10 +118,6 @@ local function Update(self, event, unit)
 	if(element.PreUpdate) then element:PreUpdate(unit) end
 
 	local cur, max, _, rested, _, level, isHonor = GetValues()
-	if(isHonor and GetMaxPlayerHonorLevel and level == GetMaxPlayerHonorLevel()) then
-		cur, max = 1, 1
-	end
-
 	if(element.SetAnimatedValues) then
 		element:SetAnimatedValues(cur, 0, max, level)
 	else
