@@ -27,22 +27,22 @@ local function IsPlayerMaxLevel()
 	return maxLevel == UnitLevel('player')
 end
 
-local function WatchingHonor()
+local function ShouldShowHonor()
 	return IsPlayerMaxLevel() and (IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
 end
 
 for tag, func in next, {
 	['experience:cur'] = function(unit)
-		return (WatchingHonor() and UnitHonor or UnitXP) ('player')
+		return (ShouldShowHonor() and UnitHonor or UnitXP) ('player')
 	end,
 	['experience:max'] = function(unit)
-		return (WatchingHonor() and UnitHonorMax or UnitXPMax) ('player')
+		return (ShouldShowHonor() and UnitHonorMax or UnitXPMax) ('player')
 	end,
 	['experience:per'] = function(unit)
 		return math_floor(_TAGS['experience:cur'](unit) / _TAGS['experience:max'](unit) * 100 + 0.5)
 	end,
 	['experience:currested'] = function()
-		if(not WatchingHonor()) then
+		if(not ShouldShowHonor()) then
 			return GetXPExhaustion()
 		else
 			return GetHonorExhaustion and GetHonorExhaustion()
@@ -60,7 +60,7 @@ for tag, func in next, {
 end
 
 local function GetValues()
-	local isHonor = WatchingHonor()
+	local isHonor = ShouldShowHonor()
 	local cur = (isHonor and UnitHonor or UnitXP)('player')
 	local max = (isHonor and UnitHonorMax or UnitXPMax)('player')
 	local level = (isHonor and UnitHonorLevel or UnitLevel)('player')
@@ -194,7 +194,7 @@ local function Visibility(self, event, unit)
 	if(not UnitHasVehicleUI('player')) then
 		if(not IsPlayerMaxLevel() and not IsXPUserDisabled()) then
 			shouldEnable = true
-		elseif(WatchingHonor()) then
+		elseif(ShouldShowHonor()) then
 			shouldEnable = true
 		end
 	end
@@ -226,6 +226,7 @@ local function Enable(self, unit)
 		self:RegisterEvent('HONOR_LEVEL_UPDATE', VisibilityPath)
 		self:RegisterEvent('DISABLE_XP_GAIN', VisibilityPath, true)
 		self:RegisterEvent('ENABLE_XP_GAIN', VisibilityPath, true)
+		self:RegisterEvent('UPDATE_EXPANSION_LEVEL', VisibilityPath, true)
 
 		hooksecurefunc('SetWatchingHonorAsXP', function()
 			if(self:IsElementEnabled('Experience')) then
