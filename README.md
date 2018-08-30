@@ -19,6 +19,7 @@ It has the following features:
 	- Player has reached trial account level cap.
 	- Player is in a vehicle.
 	- Player has disabled honor-tracking.
+	- Player has reached max honor level.
 
 For details on how to implement this in your own layout, please see the wiki:  
 <https://github.com/p3lim-wow/oUF_Experience/wiki>
