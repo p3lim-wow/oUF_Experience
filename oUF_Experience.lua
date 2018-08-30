@@ -16,7 +16,6 @@ oUF.colors.experience = {
 
 oUF.colors.honor = {
 	{1, 0.71, 0}, -- Normal
-	{1, 0.71, 0}, -- Rested
 }
 
 local function IsPlayerMaxLevel()
