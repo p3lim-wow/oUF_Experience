@@ -179,7 +179,13 @@ local function OnEnter(element)
 
 	Used to completely override the internal function for updating the tooltip.
 	--]]
-	(element.OverrideUpdateTooltip or element.UpdateTooltip or UpdateTooltip)(element) -- DEPRECATED: element.UpdateTooltip
+	if(element.OverrideUpdateTooltip) then
+		element:OverrideUpdateTooltip()
+	elseif(element.UpdateTooltip) then -- DEPRECATED
+		element:UpdateTooltip()
+	else
+		UpdateTooltip(element)
+	end
 end
 
 local function OnLeave(element)
