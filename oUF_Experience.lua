@@ -1,3 +1,74 @@
+--[[ Home:header
+# Element: Experience
+
+Adds support for an element that updates and displays the player's experience or honor as a
+StatusBar widget.
+
+## Widgets
+
+- `Experience`
+	A statusbar which displays the player's current experience or honor until the next level.  
+	Has drop-in support for `AnimatedStatusBarTemplate`.
+- `Experience.Rested`
+	An optional background-layered statusbar which displays the exhaustion the player current has.  
+	**Must** be parented to the `Experience` widget if used.
+
+## Options
+
+- `inAlpha` - Alpha used when the mouse is over the element (default: `1`)
+- `outAlpha` - Alpha used when the mouse is outside of the element (default: `1`)
+- `restedAlpha` - Alpha used for the `Rested` sub-widget (default: `0.15`)
+- `tooltipAnchor` - Anchor for the tooltip (default: `"ANCHOR_BOTTOMRIGHT"`)
+
+## Extras
+
+- [Callbacks](Callbacks)
+- [Overrides](Overrides)
+- [Tags](Tags)
+
+## Colors
+
+This plug-in adds colors for experience (normal and rested) as well as honor.  
+Accessible through `oUF.colors.experience` and `oUF.colors.honor`.
+
+## Notes
+
+- A default texture will be applied if the widget(s) is a StatusBar and doesn't have a texture set.
+- Tooltip and mouse interaction options are only enabled if the element is mouse-enabled.
+- Backgrounds/backdrops **must** be parented to the `Rested` sub-widget if used.
+- Toggling honor-tracking is done through the PvP UI
+- Remember to set the plug-in as an optional dependency for the layout if not embedding.
+
+## Example implementation
+
+```lua
+-- Position and size
+local Experience = CreateFrame('StatusBar', nil, self)
+Experience:SetPoint('BOTTOM', 0, -50)
+Experience:SetSize(200, 20)
+Experience:EnableMouse(true) -- for tooltip/fading support
+
+-- Position and size the Rested sub-widget
+local Rested = CreateFrame('StatusBar', nil, Experience)
+Rested:SetAllPoints(Experience)
+
+-- Text display
+local Value = Experience:CreateFontString(nil, 'OVERLAY')
+Value:SetAllPoints(Experience)
+Value:SetFontObject(GameFontHighlight)
+self:Tag(Value, '[experience:cur] / [experience:max]')
+
+-- Add a background
+local Background = Rested:CreateTexture(nil, 'BACKGROUND')
+Background:SetAllPoints(Experience)
+Background:SetTexture('Interface\\ChatFrame\\ChatFrameBackground')
+
+-- Register with oUF
+self.Experience = Experience
+self.Experience.Rested = Rested
+```
+--]]
+
 local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
@@ -35,6 +106,17 @@ local function ShouldShowHonor()
 	return IsPlayerMaxLevel() and (IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
 end
 
+--[[ Tags:header
+A few basic tags are included:
+- `[experience:cur]`       - the player's current experience/honor
+- `[experience:max]`       - the player's maximum experience/honor
+- `[experience:per]`       - the player's percentage of experience/honor in to the current level
+- `[experience:level]`     - the player's current experience/honor level
+- `[experience:currested]` - the player's current exhaustion
+- `[experience:perrested]` - the player's percentage of exhaustion
+
+See the [Examples](../#example-implementation) section on how to use the tags.
+--]]
 for tag, func in next, {
 	['experience:cur'] = function(unit)
 		return (ShouldShowHonor() and UnitHonor or UnitXP)('player')
@@ -91,7 +173,13 @@ end
 local function OnEnter(element)
 	element:SetAlpha(element.inAlpha)
 	GameTooltip:SetOwner(element, element.tooltipAnchor)
-	element:UpdateTooltip()
+
+	--[[ Overrides:header
+	### element:OverrideUpdateTooltip()
+
+	Used to completely override the internal function for updating the tooltip.
+	--]]
+	(element.OverrideUpdateTooltip or element.UpdateTooltip or UpdateTooltip)(element) -- DEPRECATED: element.UpdateTooltip
 end
 
 local function OnLeave(element)
@@ -122,7 +210,16 @@ local function Update(self, event, unit)
 	if(self.unit ~= unit or unit ~= 'player') then return end
 
 	local element = self.Experience
-	if(element.PreUpdate) then element:PreUpdate(unit) end
+	if(element.PreUpdate) then
+		--[[ Callbacks:header
+		### element:PreUpdate(_unit_)
+
+		Called before the element has been updated.
+
+		- `unit` - the unit for which the update has been triggered _(string)_
+		--]]
+		element:PreUpdate(unit)
+	end
 
 	local cur, max, _, rested, _, level, isHonor = GetValues()
 	if(element.SetAnimatedValues) then
@@ -137,14 +234,45 @@ local function Update(self, event, unit)
 		element.Rested:SetValue(math.min(cur + rested, max))
 	end
 
+	--[[ Overrides:header
+	### element:OverrideUpdateColor(_isHonor, isRested_)
+
+	Used to completely override the internal function for updating the widget's colors.
+
+	- `isHonor`  - indicates if the player is currently tracking honor or not _(boolean)_
+	- `isRested` - indicates if the player has any exhaustion _(boolean)_
+	--]]
 	(element.OverrideUpdateColor or UpdateColor)(element, isHonor, rested > 0)
 
 	if(element.PostUpdate) then
+		--[[ Callbacks:header
+		### element:PostUpdate(_unit, cur, max, rested, level, isHonor_)
+
+		Called after the element has been updated.
+
+		- `self`    - the Experience element
+		- `unit`    - the unit for which the update has been triggered _(string)_
+		- `cur`     - the unit's current experience/honor _(number)_
+		- `max`     - the unit's maximum experience/honor _(number)_
+		- `rested`  - the player's current exhaustion _(number)_
+		- `level`   - the unit's current experience/honor level _(number)_
+		- `isHonor` - indicates if the player is currently tracking honor or not _(boolean)_
+		--]]
 		return element:PostUpdate(unit, cur, max, rested, level, isHonor)
 	end
 end
 
 local function Path(self, ...)
+	--[[ Overrides:header
+	### element:Override(_self, event, unit_)
+
+	Used to completely override the internal update function.  
+	Overriding this function also disables the [Callbacks](Callbacks).
+
+	- `self`  - the parent object
+	- `event` - the event triggering the update _(string)_
+	- `unit`  - the unit accompanying the event _(variable(s))_
+	--]]
 	return (self.Experience.Override or Update) (self, ...)
 end
 
@@ -200,6 +328,16 @@ local function Visibility(self, event, unit)
 end
 
 local function VisibilityPath(self, ...)
+	--[[ Overrides:header
+	### element.OverrideVisibility(_self, event, unit_)
+
+	Used to completely override the element's visibility update process.  
+	The internal function is also responsible for (un)registering events related to the updates.
+
+	- `self`  - the parent object
+	- `event` - the event triggering the update _(string)_
+	- `unit`  - the unit accompanying the event _(variable(s))_
+	--]]
 	return (self.Experience.OverrideVisibility or Visibility)(self, ...)
 end
 
@@ -241,7 +379,6 @@ local function Enable(self, unit)
 		end
 
 		if(element:IsMouseEnabled()) then
-			element.UpdateTooltip = element.OverrideUpdateTooltip or element.UpdateTooltip or UpdateTooltip -- DEPRECATED: element.UpdateTooltip
 			element.tooltipAnchor = element.tooltipAnchor or 'ANCHOR_BOTTOMRIGHT'
 			element.inAlpha = element.inAlpha or 1
 			element.outAlpha = element.outAlpha or 1
