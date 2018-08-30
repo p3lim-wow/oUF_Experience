@@ -17,7 +17,7 @@ jobs:
       - run: release.sh
 workflows:
   version: 2
-  docs_and_release:
+  docs:
     jobs:
       - docs:
           filters:
@@ -25,6 +25,8 @@ workflows:
               ignore: /.*/
             branches:
               only: /.*/
+  release:
+    jobs:
       - release:
           filters:
             tags:
