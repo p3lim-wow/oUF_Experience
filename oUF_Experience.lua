@@ -18,9 +18,17 @@ oUF.colors.honor = {
 	{1, 0.71, 0}, -- Rested
 }
 
+local function IsPlayerMaxLevel()
+	local maxLevel = GetRestrictedAccountData()
+	if(maxLevel == 0) then
+		maxLevel = MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
+	end
+
+	return maxLevel == UnitLevel('player')
+end
+
 local function WatchingHonor()
-	return UnitLevel('player') >= MAX_PLAYER_LEVEL and
-		(IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
+	return IsPlayerMaxLevel() and (IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
 end
 
 for tag, func in next, {
@@ -183,8 +191,8 @@ local function Visibility(self, event, unit)
 	local element = self.Experience
 	local shouldEnable
 
-	if(not UnitHasVehicleUI('player') and not IsXPUserDisabled()) then
-		if(UnitLevel('player') ~= element.__accountMaxLevel) then
+	if(not UnitHasVehicleUI('player')) then
+		if(not IsPlayerMaxLevel() and not IsXPUserDisabled()) then
 			shouldEnable = true
 		elseif(WatchingHonor()) then
 			shouldEnable = true
@@ -210,13 +218,6 @@ local function Enable(self, unit)
 	local element = self.Experience
 	if(element and unit == 'player') then
 		element.__owner = self
-
-		local levelRestriction = GetRestrictedAccountData()
-		if(levelRestriction > 0) then
-			element.__accountMaxLevel = levelRestriction
-		else
-			element.__accountMaxLevel = MAX_PLAYER_LEVEL
-		end
 
 		element.ForceUpdate = ForceUpdate
 		element.restedAlpha = element.restedAlpha or 0.15
