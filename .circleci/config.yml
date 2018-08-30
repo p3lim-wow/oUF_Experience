@@ -1,5 +1,14 @@
 version: 2
 jobs:
+  docs:
+    docker:
+      - image: p3lim/lua-doc-parser:latest
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - " SHA256:Z7XGiML5YDwnp+5vFrCMieiFvWNXtlSklAfPeIlzl60"
+      - checkout
+      - run: build
   release:
     docker:
       - image: p3lim/wow-packager:latest
@@ -8,11 +17,18 @@ jobs:
       - run: release.sh
 workflows:
   version: 2
-  release:
+  docs_and_release:
     jobs:
+      - docs:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: /.*/
       - release:
           filters:
             tags:
               only: /.*/
             branches:
               ignore: /.*/
+          context: api-keys
