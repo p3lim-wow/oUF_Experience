@@ -1,3 +1,8 @@
+### Changes in 80100.27-Release:
+
+- Changed: Updated event logic for oUF 9.0 (thanks @Rainrider)
+- Changed: Update Interface version
+
 ### Changes in 80000.26-Release:
 
 - Added: Honor level to tooltip
