@@ -105,7 +105,7 @@ local function IsPlayerMaxHonorLevel()
 end
 
 local function ShouldShowHonor()
-	return IsPlayerMaxLevel() and (IsWatchingHonorAsXP() or InActiveBattlefield() or IsInActiveWorldPVP())
+	return IsPlayerMaxLevel() and (IsWatchingHonorAsXP() or C_PvP.IsActiveBattlefield() or IsInActiveWorldPVP())
 end
 
 --[[ Tags:header
