@@ -1,3 +1,8 @@
+### Changes in 90000.28-Release:
+
+- Changed: Update Interface version
+- Fixed: Shadowlands compatibility
+
 ### Changes in 80100.27-Release:
 
 - Changed: Updated event logic for oUF 9.0 (thanks @Rainrider)
