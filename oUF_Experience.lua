@@ -73,8 +73,6 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, 'oUF Experience was unable to locate oUF install')
 
-local WOW_9 = select(4, GetBuildInfo()) >= 90000
-
 local HONOR = HONOR or 'Honor'
 local HONOR_LEVEL_LABEL = HONOR_LEVEL_LABEL or 'Honor Level %d'
 local EXPERIENCE = COMBAT_XP_GAIN or 'Experience'
@@ -94,7 +92,7 @@ oUF.colors.honor = {
 local function IsPlayerMaxLevel()
 	local maxLevel = GetRestrictedAccountData()
 	if(maxLevel == 0) then
-		maxLevel = WOW_9 and GetMaxLevelForPlayerExpansion() or MAX_PLAYER_LEVEL_TABLE[GetExpansionLevel()]
+		maxLevel = GetMaxLevelForPlayerExpansion()
 	end
 
 	return maxLevel == UnitLevel('player')
