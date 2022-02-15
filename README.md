@@ -1,7 +1,12 @@
 # oUF Experience
 
 This is an addon for the popular MMORPG "World of Warcraft".  
-It can be downloaded at [Curse](//mods.curse.com/addons/wow/ouf-experience) or at [WoWInterface](//wowinterface.com/downloads/info10647).
+It can be downloaded at one of the following sites:
+
+- [Curse](https://www.curseforge.com/wow/addons/ouf-experience)
+- [WoWInterface](https://wowinterface.com/downloads/info10647)
+- [Wago](https://addons.wago.io/addons/ouf-experience)
+- [GitHub](https://github.com/p3lim-wow/oUF_Experience/releases)
 
 ## Description
 

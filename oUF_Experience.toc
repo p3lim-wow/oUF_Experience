@@ -7,5 +7,6 @@
 
 ## X-Curse-Project-ID: 20343
 ## X-WoWI-ID: 10647
+## X-Wago-ID: PANz1QG4
 
 oUF_Experience.lua
