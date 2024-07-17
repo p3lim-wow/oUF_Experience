@@ -81,12 +81,12 @@ local RESTED = TUTORIAL_TITLE26 or 'Rested'
 local math_floor = math.floor
 
 oUF.colors.experience = {
-	{0.58, 0, 0.55}, -- Normal
-	{0, 0.39, 0.88}, -- Rested
+	oUF:CreateColor(0.58, 0, 0.55), -- Normal
+	oUF:CreateColor(0, 0.39, 0.88), -- Rested
 }
 
 oUF.colors.honor = {
-	{1, 0.71, 0}, -- Normal
+	oUF:CreateColor(1, 0.71, 0), -- Normal
 }
 
 local function IsPlayerMaxLevel()
@@ -198,12 +198,12 @@ end
 local function UpdateColor(element, isHonor, isRested)
 	local colors = element.__owner.colors
 	if(isHonor) then
-		colors = colors.honor
+		colors = colors.honor[isRested and 2 or 1]
 	else
-		colors = colors.experience
+		colors = colors.experience[isRested and 2 or 1]
 	end
 
-	local r, g, b = unpack(colors[isRested and 2 or 1])
+	local r, g, b = colors:GetRGB()
 	element:SetStatusBarColor(r, g, b)
 	if(element.SetAnimatedTextureColors) then
 		element:SetAnimatedTextureColors(r, g, b)
