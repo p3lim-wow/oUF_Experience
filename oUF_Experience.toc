@@ -1,4 +1,4 @@
-## Interface: 110000, 110002
+## Interface: 110007
 ## Author: p3lim
 ## Version: @project-version@
 ## Title: oUF Experience
