@@ -1,3 +1,9 @@
+### Changes in 110000.33-Release:
+
+- Changed: Update Interface version
+- Changed: Use oUF:CreateColor for all colors
+- Removed: Deprecations
+
 ### Changes in 90200.32-Release:
 
 - Changed: Update Interface version
